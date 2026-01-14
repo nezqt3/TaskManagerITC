@@ -1,0 +1,46 @@
+package handler
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/yourname/telegram-auth/internal/model"
+	"github.com/yourname/telegram-auth/internal/service"
+	"github.com/yourname/telegram-auth/internal/telegram"
+)
+
+func TelegramAuthHandler(cfg *model.Config) http.HandlerFunc {
+	return func (w http.ResponseWriter, r *http.Request) {
+		var req model.AuthRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "invalid request", http.StatusBadRequest)
+			return
+		}
+
+		dataMap := map[string]string{
+			"id":         fmt.Sprintf("%d", req.ID),
+			"first_name": req.FirstName,
+			"last_name":  req.LastName,
+			"username":   req.Username,
+			"photo_url":  req.PhotoURL,
+			"auth_date":  fmt.Sprintf("%d", req.AuthDate),
+			"hash":       req.Hash,
+		}
+
+		if err := telegram.CheckTelegramAuth(dataMap, cfg.TelegramBotToken); err != nil {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		resp, err := service.TelegramAuth(&req, cfg)
+		if err != nil {
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(resp)
+	}
+}
+	

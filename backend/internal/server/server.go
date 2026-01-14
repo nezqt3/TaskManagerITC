@@ -4,6 +4,7 @@ import (
 	"net/http"
 	
 	"github.com/yourname/telegram-auth/internal/model"
+	"github.com/yourname/telegram-auth/internal/handler"
 )
 
 type App struct {
@@ -18,6 +19,8 @@ func New(cfg *model.Config) *App {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Hello"))
 	})
+
+	mux.HandleFunc("/auth/telegram", handler.TelegramAuthHandler(cfg))
 
 	return &App {
 		router: mux,
