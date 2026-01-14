@@ -13,7 +13,7 @@ func LoadConfig() *model.Config{
 		log.Println(".env not found")
 	}
 
-	cfg := &Config{
+	cfg := &model.Config{
 		AppPort: getEnv("APP_PORT", "8080"),
 		TelegramBotToken: getEnv("TELEGRAM_BOT_TOKEN", ""),
 		JWTSecret: getEnv("JWT_SECRET", "supersecret"),

@@ -3,7 +3,6 @@ package server
 import (
 	"net/http"
 	
-	"github.com/yourname/telegram-auth/internal/config"
 	"github.com/yourname/telegram-auth/internal/model"
 )
 
