@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 export default function StartScreen() {
   const [asciiArt, setAsciiArt] = useState("");
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  const BOT_USERNAME = "it_communitytest_bot";
+  const telegramLoginUrl = `https://t.me/${BOT_USERNAME}?start=login`;
 
   useEffect(() => {
     fetch(`${process.env.PUBLIC_URL}/ascii-art.txt`)
@@ -32,7 +34,9 @@ export default function StartScreen() {
           <button
             className="btn btn--accent btn--cta"
             type="button"
-            onClick={() => navigate("/main")}
+            id="auth-button"
+            // onClick={() => navigate("/main")}
+            onClick={() => window.open(telegramLoginUrl)}
           >
             Авторизация
           </button>
