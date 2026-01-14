@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function StartScreen() {
   const [asciiArt, setAsciiArt] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`${process.env.PUBLIC_URL}/ascii-art.txt`)
@@ -27,7 +29,11 @@ export default function StartScreen() {
         <div className="hero__content">
           <h1 className="hero__title">TaskManager</h1>
           <p className="hero__subtitle">it-сообщество</p>
-          <button className="btn btn--accent btn--cta" type="button">
+          <button
+            className="btn btn--accent btn--cta"
+            type="button"
+            onClick={() => navigate("/main")}
+          >
             Авторизация
           </button>
         </div>
