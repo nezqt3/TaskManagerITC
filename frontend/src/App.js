@@ -1,9 +1,7 @@
+import StartScreen from "./pages/StartScreen";
+
 function App() {
-  return (
-    <div className="App">
-      <p>123</p>
-    </div>
-  );
+  return <StartScreen />;
 }
 
 export default App;
