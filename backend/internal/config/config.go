@@ -20,6 +20,8 @@ func LoadConfig() *model.Config{
 		JWTTTL: getEnv("JWT_TTL", "24h"),
 		DBDSN: getEnv("DBDSN", ""),
 		SPREADSHEET_URL: getEnv("SPREADSHEET_URL", ""),
+		NAME_OF_DATABASE: getEnv("NAME_OF_DATABASE", ""),
+		DATABASE: getEnv("DATABASE", ""),
 	}
 
 	return cfg
