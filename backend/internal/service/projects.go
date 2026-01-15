@@ -79,6 +79,17 @@ func GetProjectsByUsername(cfg *model.Config, username string) ([]model.Project,
 	return filtered, nil
 }
 
+func GetProjectsByID(cfg *model.Config, id int) ([]model.Project, error) {
+    project, err := GetProjectByID(cfg, id)
+    if err != nil {
+        return nil, err
+    }
+    if project == nil {
+        return []model.Project{}, nil
+    }
+    return []model.Project{*project}, nil
+}
+
 func GetProjectByID(cfg *model.Config, id int) (*model.Project, error) {
 	projects, err := GetProjects(cfg)
 	if err != nil {

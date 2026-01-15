@@ -47,14 +47,19 @@ func New(cfg *model.Config) *App {
 			return
 		}
 
-		username := r.URL.Query().Get("username")
+		id := r.URL.Query().Get("id")
 		var (
 			projects []model.Project
 			err      error
 		)
 
-		if username != "" {
-			projects, err = service.GetProjectsByUsername(cfg, username)
+		if id != "" {
+			idInt, err := strconv.Atoi(id)
+			if err != nil {
+				http.Error(w, "invalid id", http.StatusBadRequest)
+				return
+			}
+			projects, err = service.GetProjectsByID(cfg, idInt)
 		} else {
 			projects, err = service.GetProjects(cfg)
 		}
@@ -98,6 +103,31 @@ func New(cfg *model.Config) *App {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(project)
+	})
+
+	// end-point получение тасок по задаче
+	mux.HandleFunc("/tasks", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		id := r.URL.Query().Get("id_project")
+		if id == "" {
+			http.Error(w, "id_project is required", http.StatusBadRequest)
+			return
+		}
+
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			http.Error(w, "invalid id_project", http.StatusBadRequest)
+			return
+		}
+
+		tasks := handler.GetTasksByProjectID(idInt)
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(tasks)
 	})
 
 	return &App{

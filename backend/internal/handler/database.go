@@ -149,6 +149,39 @@ func createTask(task *database.Task) {
     }
 }
 
+func GetTasksByProjectID(projectID int) []database.Task {
+    rows, err := DB.Query("SELECT * FROM tasks WHERE id_project = ?", projectID)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer rows.Close()
+
+    var tasks []database.Task
+    for rows.Next() {
+        var t database.Task
+        err := rows.Scan(
+            &t.ID,
+            &t.Description,
+            &t.Deadline,
+            &t.Status,
+            &t.User,
+            &t.Title,
+            &t.Author,
+            &t.IdProject,
+        )
+        if err != nil {
+            log.Fatal(err)
+        }
+        tasks = append(tasks, t)
+    }
+
+    if err = rows.Err(); err != nil {
+        log.Fatal(err)
+    }
+
+    return tasks
+}
+
 func createProject(project *database.Project) {
 	_, err := DB.Exec(
         "INSERT INTO projects VALUES(?,?,?,?,?)",
