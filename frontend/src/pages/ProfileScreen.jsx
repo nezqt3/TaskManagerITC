@@ -55,8 +55,6 @@ export default function ProfileScreen() {
 
   const profileFields = useMemo(
     () => [
-      { label: "Имя", value: derivedProfile.firstName },
-      { label: "Фамилия", value: derivedProfile.lastName },
       { label: "Дата рождения", value: derivedProfile.dateOfBirthday },
       { label: "Должность", value: derivedProfile.role },
       { label: "TelegramID", value: derivedProfile.telegramID },
