@@ -3,6 +3,8 @@ package server
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"backend/internal/handler"
 	"backend/internal/model"
@@ -36,6 +38,66 @@ func New(cfg *model.Config) *App {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(users)
+	})
+
+	// end-point получения проектов
+	mux.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		username := r.URL.Query().Get("username")
+		var (
+			projects []model.Project
+			err      error
+		)
+
+		if username != "" {
+			projects, err = service.GetProjectsByUsername(cfg, username)
+		} else {
+			projects, err = service.GetProjects(cfg)
+		}
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(projects)
+	})
+
+	// end-point получения одного проекта
+	mux.HandleFunc("/projects/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		idRaw := strings.TrimPrefix(r.URL.Path, "/projects/")
+		if idRaw == "" {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+
+		id, err := strconv.Atoi(idRaw)
+		if err != nil {
+			http.Error(w, "invalid id", http.StatusBadRequest)
+			return
+		}
+
+		project, err := service.GetProjectByID(cfg, id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if project == nil {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(project)
 	})
 
 	return &App{

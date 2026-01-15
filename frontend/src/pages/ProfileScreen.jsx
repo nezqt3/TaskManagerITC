@@ -1,18 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import "../styles/ProfileScreen.scss";
 
-const projectTemplate = {
-  title: "Наша личная CRM-система",
-  subtitle: "посмотреть задачи",
-  status: "в разработке",
-  participants: 3,
-  role: "руководитель / разработчик",
-};
-
-const profileProjects = Array.from({ length: 4 }, (_, index) => ({
-  ...projectTemplate,
-  id: index,
-}));
+const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
+const TASKS_LINK_TEXT = "просмотреть задачу";
 
 export default function ProfileScreen() {
   const [profile] = useState(() => {
@@ -53,6 +44,53 @@ export default function ProfileScreen() {
     };
   }, [profile]);
 
+  const [projects, setProjects] = useState([]);
+  const [projectsError, setProjectsError] = useState("");
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
+
+  useEffect(() => {
+    const username = profile?.username?.replace(/^@/, "");
+    if (!username) {
+      setProjects([]);
+      setIsLoadingProjects(false);
+      return;
+    }
+
+    let isActive = true;
+    setIsLoadingProjects(true);
+    setProjectsError("");
+
+    fetch(`${API_BASE}/projects?username=${encodeURIComponent(username)}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("failed");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (!isActive) {
+          return;
+        }
+        setProjects(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        if (!isActive) {
+          return;
+        }
+        setProjectsError("Не удалось загрузить проекты");
+      })
+      .finally(() => {
+        if (!isActive) {
+          return;
+        }
+        setIsLoadingProjects(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [profile]);
+
   const profileFields = useMemo(
     () => [
       { label: "Дата рождения", value: derivedProfile.dateOfBirthday },
@@ -61,6 +99,10 @@ export default function ProfileScreen() {
     ],
     [derivedProfile]
   );
+
+  const normalizedUsername = profile?.username
+    ? profile.username.replace(/^@/, "").toLowerCase()
+    : "";
 
   return (
     <section className="profile-screen">
@@ -94,25 +136,71 @@ export default function ProfileScreen() {
           </div>
 
           <div className="profile-projects__list">
-            {profileProjects.map((project) => (
-              <article className="project-card" key={project.id}>
+            {isLoadingProjects && (
+              <article className="project-card" aria-busy="true">
                 <div className="project-card__main">
-                  <p className="project-card__title">{project.title}</p>
-                  <p className="project-card__subtitle">{project.subtitle}</p>
-                </div>
-                <div className="project-card__meta">
-                  <p>
-                    <span>статус:</span> {project.status}
-                  </p>
-                  <p>
-                    <span>кол-во участников:</span> {project.participants}
-                  </p>
-                  <p>
-                    <span>роль:</span> {project.role}
-                  </p>
+                  <p className="project-card__title">Загрузка...</p>
+                  <p className="project-card__subtitle">подождите немного</p>
                 </div>
               </article>
-            ))}
+            )}
+            {!isLoadingProjects && projectsError && (
+              <article className="project-card">
+                <div className="project-card__main">
+                  <p className="project-card__title">Ошибка</p>
+                  <p className="project-card__subtitle">{projectsError}</p>
+                </div>
+              </article>
+            )}
+            {!isLoadingProjects &&
+              !projectsError &&
+              projects.length === 0 && (
+                <article className="project-card">
+                  <div className="project-card__main">
+                    <p className="project-card__title">Проекты не найдены</p>
+                    <p className="project-card__subtitle">
+                      нет связанных проектов для профиля
+                    </p>
+                  </div>
+                </article>
+              )}
+            {!isLoadingProjects &&
+              !projectsError &&
+              projects.length > 0 &&
+              projects.map((project) => {
+                const members = Array.isArray(project.members)
+                  ? project.members
+                  : [];
+                const currentMember = members.find(
+                  (member) =>
+                    member.username?.toLowerCase() === normalizedUsername
+                );
+                const role = currentMember?.role || "участник";
+                return (
+                  <article className="project-card" key={project.id}>
+                    <div className="project-card__main">
+                      <p className="project-card__title">{project.title}</p>
+                      <Link
+                        className="project-card__subtitle"
+                        to={`/projects/${project.id}`}
+                      >
+                        {TASKS_LINK_TEXT}
+                      </Link>
+                    </div>
+                    <div className="project-card__meta">
+                      <p>
+                        <span>статус:</span> {project.status || "—"}
+                      </p>
+                      <p>
+                        <span>участники:</span> {members.length}
+                      </p>
+                      <p>
+                        <span>роль:</span> {role}
+                      </p>
+                    </div>
+                  </article>
+                );
+              })}
           </div>
         </section>
       </div>

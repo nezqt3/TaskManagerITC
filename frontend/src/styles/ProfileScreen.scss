@@ -211,6 +211,10 @@
   color: rgba(255, 255, 255, 0.55);
   text-transform: lowercase;
   line-height: 1.2;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .project-card__meta {

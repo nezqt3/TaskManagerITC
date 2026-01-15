@@ -1,17 +1,89 @@
 @use "./variables" as *;
 
-.empty-view {
+.projects-screen {
   min-height: 60vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 28px;
   background: var(--color-bg-alt);
   border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: clamp(18px, 3vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
-.empty-view__title {
+.projects-screen__title {
   margin: 0;
-  font-size: clamp(28px, 4vw, 46px);
+  font-size: clamp(26px, 3.5vw, 40px);
   font-family: $font-title;
+}
+
+.projects-screen__list {
+  display: grid;
+  gap: 12px;
+}
+
+.project-card {
+  background: var(--color-bg);
+  border-radius: 18px;
+  padding: 12px 18px;
+  border: 1px solid rgba(0, 128, 139, 0.35);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.project-card__main {
+  flex: 1;
+}
+
+.project-card__title {
+  margin: 0;
+  font-size: 18px;
+  font-family: $font-title;
+  line-height: 1.2;
+}
+
+.project-card__subtitle {
+  margin: 2px 0 0;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: lowercase;
+  line-height: 1.2;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.project-card__meta {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  text-align: right;
+  color: #ffffff;
+  line-height: 1.5;
+}
+
+.project-card__meta p {
+  margin: 2px 0;
+}
+
+.project-card__meta span {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+@media (max-width: 1024px) {
+  .project-card {
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .project-card__meta {
+    text-align: left;
+  }
 }
