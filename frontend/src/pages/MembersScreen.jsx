@@ -1,3 +1,5 @@
+import "../styles/MembersScreen.scss";
+
 export default function MembersScreen() {
   return (
     <section className="empty-view">

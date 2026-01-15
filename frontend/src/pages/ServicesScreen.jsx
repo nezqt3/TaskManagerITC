@@ -1,3 +1,5 @@
+import "../styles/ServicesScreen.scss";
+
 export default function ServicesScreen() {
   return (
     <section className="empty-view">

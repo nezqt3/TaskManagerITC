@@ -1,0 +1,17 @@
+@use "./variables" as *;
+
+.empty-view {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 28px;
+  background: var(--color-bg-alt);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.empty-view__title {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 46px);
+  font-family: $font-title;
+}

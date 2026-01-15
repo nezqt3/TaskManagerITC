@@ -1,3 +1,5 @@
+import "../styles/ProjectsScreen.scss";
+
 export default function ProjectsScreen() {
   return (
     <section className="empty-view">

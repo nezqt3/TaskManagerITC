@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
+import "../styles/DashboardLayout.scss";
 
 const NAV_ITEMS = [
   { id: "main", label: "Главная", to: "/main" },

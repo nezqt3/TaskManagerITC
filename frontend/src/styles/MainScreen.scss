@@ -1,0 +1,66 @@
+@use "./variables" as *;
+
+.main {
+  padding: 24px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.panel {
+  background: var(--color-bg-alt);
+  border-radius: 22px;
+  padding: 20px;
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel__title {
+  margin: 0;
+  font-size: 16px;
+}
+
+.panel__stack {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card-placeholder {
+  position: relative;
+  border-radius: 18px;
+  background: var(--color-bg-alt);
+  border: 1px solid   rgba(0, 116, 125, 0.5);
+  overflow: hidden;
+  padding: 16px 18px;
+}
+
+.card-placeholder span {
+  display: block;
+  height: 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.14);
+  margin-bottom: 12px;
+  max-width: 70%;
+}
+
+.card-placeholder span:last-child {
+  width: 45%;
+  margin-bottom: 0;
+}
+
+@media (max-width: 980px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+}

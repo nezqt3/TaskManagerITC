@@ -1,3 +1,5 @@
+import "../styles/ProfileScreen.scss";
+
 export default function ProfileScreen() {
   return (
     <section className="empty-view">

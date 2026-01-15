@@ -1,0 +1,104 @@
+@use "./variables" as *;
+
+.dashboard-layout {
+  min-height: 100vh;
+  width: 100%;
+  padding: 28px 36px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  background: var(--color-bg);
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: center;
+}
+
+.main-nav {
+  display: grid;
+  grid-template-columns: auto 200px 150px 200px auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 55px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--color-bg-alt);
+}
+
+.main-nav__item {
+  position: relative;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-size: 16px;
+  font-family: $font-body;
+  color: var(--color-text);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease, color 0.25s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+}
+
+.main-nav__item:first-child {
+  justify-self: start;
+}
+
+.main-nav__item:last-child {
+  justify-self: end;
+}
+
+.main-nav__item--active {
+  background: #494a4a;
+  color: #ffffff;
+  align-self: stretch;
+}
+
+.main-nav__item:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 3px;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  animation: contentFade 0.4s ease both;
+}
+
+@media (max-width: 980px) {
+  .dashboard-layout {
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .main-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .main-nav__item {
+    justify-self: stretch;
+  }
+
+  .main-nav__item:first-child,
+  .main-nav__item:last-child {
+    justify-self: stretch;
+  }
+}
+
+@keyframes contentFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

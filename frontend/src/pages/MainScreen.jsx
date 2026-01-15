@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import "../styles/MainScreen.scss";
 
 function PlaceholderPanel({ title, cards }) {
   const placeholders = useMemo(
