@@ -9,8 +9,9 @@ import (
 	"backend/internal/model"
 )
 
-func InitDatabase(cfg *model.Config) {
+var DB *sql.DB
 
+func InitDatabase(cfg *model.Config) {
 	absPath, err := filepath.Abs(cfg.NAME_OF_DATABASE)
 
 	if err != nil {
@@ -18,14 +19,17 @@ func InitDatabase(cfg *model.Config) {
 		return
 	}
 
-	db, err := sql.Open(cfg.DATABASE, absPath)
+	DB, err := sql.Open(cfg.DATABASE, absPath)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	defer db.Close()
 
-	sqlSmt := `
+	createTables()
+}
+
+func createTables() {
+	userTable := `
 	CREATE TABLE IF NOT EXISTS users (
 		TelegramID     TEXT PRIMARY KEY,
 		FirstName      TEXT,
@@ -40,12 +44,12 @@ func InitDatabase(cfg *model.Config) {
 	);
 	`
 
-	_, err = db.Exec(sqlSmt)
+	_, err = DB.Exec(userTable)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sqlSmt = `
+	projectTable = `
 	CREATE TABLE IF NOT EXISTS projects (
 		id     			INTEGER PRIMARY KEY,
 		description     TEXT,
@@ -54,8 +58,32 @@ func InitDatabase(cfg *model.Config) {
 		status      	TEXT  
 	);
 	`
-	_, err = db.Exec(sqlSmt)
+
+	_, err = DB.Exec(projectTable)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getAllUsers() []model.UserProfile {
+	users, err := DB.Exec("SELECT * FROM users")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return users
+}
+
+func createUser(user *model.UserProfile) {
+	_, err = DB.Exec("INSERT INTO users VALUES(?,?,?,?,?,?,?,?,?,?,?)", user.TelegramID, user.FirstName, user.LastName, user.Username, user.PhotoURL, user.FullName, user.DateOfBirthday, user.NumberOfPhone, user.Role, user.MayToOpen)
+	err != nil {
+		log.Fatal(err)
+	}
+}
+
+func getUserByTelegramID(telegramID string) (*model.UserProfile, error) {
+	row, err := DB.QueryRow("SELECT * FROM users WHERE TelegramID = ?", telegramID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return row, err
 }
