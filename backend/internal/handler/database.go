@@ -19,7 +19,7 @@ func InitDatabase(cfg *model.Config) {
 		return
 	}
 
-	DB, err := sql.Open(cfg.DATABASE, absPath)
+	DB, err = sql.Open(cfg.DATABASE, absPath)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -44,12 +44,12 @@ func createTables() {
 	);
 	`
 
-	_, err = DB.Exec(userTable)
+	_, err := DB.Exec(userTable)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	projectTable = `
+	projectTable := `
 	CREATE TABLE IF NOT EXISTS projects (
 		id     			INTEGER PRIMARY KEY,
 		description     TEXT,
@@ -66,24 +66,70 @@ func createTables() {
 }
 
 func getAllUsers() []model.UserProfile {
-	users, err := DB.Exec("SELECT * FROM users")
-	if err != nil {
-		log.Fatal(err)
-	}
-	return users
+    rows, err := DB.Query("SELECT * FROM users")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer rows.Close()
+
+    var users []model.UserProfile
+    for rows.Next() {
+        var u model.UserProfile
+        err := rows.Scan(
+            &u.TelegramID,
+            &u.FirstName,
+            &u.LastName,
+            &u.Username,
+            &u.PhotoURL,
+            &u.FullName,
+            &u.DateOfBirthday,
+            &u.NumberOfPhone,
+            &u.Role,
+            &u.MayToOpen,
+        )
+        if err != nil {
+            log.Fatal(err)
+        }
+        users = append(users, u)
+    }
+    return users
 }
 
 func createUser(user *model.UserProfile) {
-	_, err = DB.Exec("INSERT INTO users VALUES(?,?,?,?,?,?,?,?,?,?,?)", user.TelegramID, user.FirstName, user.LastName, user.Username, user.PhotoURL, user.FullName, user.DateOfBirthday, user.NumberOfPhone, user.Role, user.MayToOpen)
-	err != nil {
-		log.Fatal(err)
-	}
+    _, err := DB.Exec(
+        "INSERT INTO users VALUES(?,?,?,?,?,?,?,?,?,?)",
+        user.TelegramID,
+        user.FirstName,
+        user.LastName,
+        user.Username,
+        user.PhotoURL,
+        user.FullName,
+        user.DateOfBirthday,
+        user.NumberOfPhone,
+        user.Role,
+        user.MayToOpen,
+    )
+    if err != nil {
+        log.Fatal(err)
+    }
 }
 
 func getUserByTelegramID(telegramID string) (*model.UserProfile, error) {
-	row, err := DB.QueryRow("SELECT * FROM users WHERE TelegramID = ?", telegramID)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return row, err
+    u := &model.UserProfile{}
+    err := DB.QueryRow("SELECT * FROM users WHERE TelegramID = ?", telegramID).Scan(
+        &u.TelegramID,
+        &u.FirstName,
+        &u.LastName,
+        &u.Username,
+        &u.PhotoURL,
+        &u.FullName,
+        &u.DateOfBirthday,
+        &u.NumberOfPhone,
+        &u.Role,
+        &u.MayToOpen,
+    )
+    if err != nil {
+        return nil, err
+    }
+    return u, nil
 }
