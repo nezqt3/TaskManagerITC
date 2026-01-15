@@ -11,8 +11,8 @@ type AuthRequest struct {
 }
 
 type AuthResponse struct {
-	JWT string  `json:"jwt"`
-	USER User `json:"user"` 
+	JWT     string      `json:"jwt"`
+	Profile UserProfile `json:"profile"`
 }
 
 type User struct {

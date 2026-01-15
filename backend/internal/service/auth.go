@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"strconv"
 	"time"
 
 	"backend/internal/model"
@@ -23,17 +24,44 @@ func TelegramAuth(req *model.AuthRequest, cfg *model.Config) (*model.AuthRespons
 		return nil, err
 	}
 
-	user := model.User{
-		ID: req.ID,
-		FirstName: req.FirstName,
-		LastName: req.LastName,
-		Username: req.Username,
-		PhotoURL: req.PhotoURL,
+	telegramID := strconv.FormatInt(req.ID, 10)
+	csvUser, err := GetUserByTelegramID(cfg, telegramID)
+	if err != nil {
+		return nil, err
+	}
+
+	username := req.Username
+	if username == "" {
+		username = csvUser.Username
+	}
+
+	fullName := csvUser.FullName
+	if fullName == "" {
+		if req.FirstName != "" || req.LastName != "" {
+			if req.LastName != "" {
+				fullName = req.FirstName + " " + req.LastName
+			} else {
+				fullName = req.FirstName
+			}
+		}
+	}
+
+	profile := model.UserProfile{
+		TelegramID:     telegramID,
+		FirstName:      req.FirstName,
+		LastName:       req.LastName,
+		Username:       username,
+		PhotoURL:       req.PhotoURL,
+		FullName:       fullName,
+		DateOfBirthday: csvUser.DateOfBirthday,
+		NumberOfPhone:  csvUser.NumberOfPhone,
+		Role:           csvUser.Role,
+		MayToOpen:      csvUser.MayToOpen,
 	}
 
 	resp := &model.AuthResponse{
-		JWT: token,
-		USER: user,
+		JWT:     token,
+		Profile: profile,
 	}
 
 	return resp, nil

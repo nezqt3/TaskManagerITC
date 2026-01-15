@@ -1,20 +1,23 @@
 package service
 
 import (
+	"encoding/csv"
+	"errors"
 	"fmt"
 	"net/http"
-	"encoding/csv"
-	"log"
+	"strings"
 
 	"backend/internal/model"
 )
+
+var ErrUserNotFound = errors.New("user not found")
 
 func GetUsers(cfg *model.Config) ([]model.UserCSV, error) {
 	resp, err := http.Get(cfg.SPREADSHEET_URL)
 	var users []model.UserCSV
 
 	if err != nil {
-		log.Fatalf("Ошибка при получении пользователей")
+		return nil, fmt.Errorf("ошибка при получении пользователей: %w", err)
 	}
 
 	defer resp.Body.Close()
@@ -43,17 +46,33 @@ func GetUsers(cfg *model.Config) ([]model.UserCSV, error) {
 		mayToOpen := row[6] == "TRUE"
 
 		user := model.UserCSV{
-			FullName: row[0],
-			Username: row[1],
+			FullName:       row[0],
+			Username:       row[1],
 			DateOfBirthday: row[2],
-			NumberOfPhone: row[3],
-			Role: row[4],
-			TelegramID: row[5],
-			MayToOpen: mayToOpen,
+			NumberOfPhone:  row[3],
+			Role:           row[4],
+			TelegramID:     row[5],
+			MayToOpen:      mayToOpen,
 		}
 
 		users = append(users, user)
 	}
 
 	return users, err
+}
+
+func GetUserByTelegramID(cfg *model.Config, telegramID string) (*model.UserCSV, error) {
+	users, err := GetUsers(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	normalizedID := strings.TrimSpace(telegramID)
+	for i := range users {
+		if strings.TrimSpace(users[i].TelegramID) == normalizedID {
+			return &users[i], nil
+		}
+	}
+
+	return nil, ErrUserNotFound
 }
