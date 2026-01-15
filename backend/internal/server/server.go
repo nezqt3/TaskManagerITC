@@ -8,6 +8,7 @@ import (
 
 	"backend/internal/handler"
 	"backend/internal/model"
+	"backend/internal/model/database"
 	"backend/internal/service"
 )
 
@@ -105,30 +106,59 @@ func New(cfg *model.Config) *App {
 		json.NewEncoder(w).Encode(project)
 	})
 
-	// end-point получение тасок по задаче
+	// end-point получение/создание тасок по задаче
 	mux.HandleFunc("/tasks", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
+		switch r.Method {
+
+		case http.MethodGet:
+			id := r.URL.Query().Get("id_project")
+			if id == "" {
+				http.Error(w, "id_project is required", http.StatusBadRequest)
+				return
+			}
+
+			idInt, err := strconv.Atoi(id)
+			if err != nil {
+				http.Error(w, "invalid id_project", http.StatusBadRequest)
+				return
+			}
+
+			tasks := handler.GetTasksByProjectID(idInt)
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(tasks)
+
+		case http.MethodPost:
+			var input database.Task
+
+			if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+				http.Error(w, "invalid json", http.StatusBadRequest)
+				return
+			}
+
+			task := database.Task{
+				Description: input.Description,
+				Deadline:    input.Deadline,
+				Status:      input.Status,
+				User:        input.User,
+				Title:       input.Title,
+				Author:      input.Author,
+				IdProject:   input.IdProject,
+			}
+
+			if err := handler.CreateTask(&task); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			w.WriteHeader(http.StatusCreated)
+			json.NewEncoder(w).Encode(task)
+
+		default:
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-			return
 		}
-
-		id := r.URL.Query().Get("id_project")
-		if id == "" {
-			http.Error(w, "id_project is required", http.StatusBadRequest)
-			return
-		}
-
-		idInt, err := strconv.Atoi(id)
-		if err != nil {
-			http.Error(w, "invalid id_project", http.StatusBadRequest)
-			return
-		}
-
-		tasks := handler.GetTasksByProjectID(idInt)
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tasks)
 	})
+
 
 	return &App{
 		router: withCORS(mux),

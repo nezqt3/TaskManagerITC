@@ -132,21 +132,34 @@ func createUser(user *model.UserProfile) {
     }
 }
 
-func createTask(task *database.Task) {
-	_, err := DB.Exec(
-        "INSERT INTO tasks VALUES(?,?,?,?,?,?,?,?)",
-        task.ID,
-        task.Description,
-        task.Deadline,
-        task.Status,
-        task.User,
-        task.Title,
-        task.Author,
-        task.IdProject,
-    )
-    if err != nil {
-        log.Fatal(err)
-    }
+func CreateTask(task *database.Task) error {
+	result, err := DB.Exec(`
+		INSERT INTO tasks (
+			description,
+			deadline,
+			status,
+			user,
+			title,
+			author,
+			id_project
+		) VALUES (?, ?, ?, ?, ?, ?, ?)
+	`,
+		task.Description,
+		task.Deadline,
+		task.Status,
+		task.User,
+		task.Title,
+		task.Author,
+		task.IdProject,
+	)
+	if err != nil {
+		return err
+	}
+
+	id, _ := result.LastInsertId()
+	task.ID = int(id)
+
+	return nil
 }
 
 func GetTasksByProjectID(projectID int) []database.Task {
