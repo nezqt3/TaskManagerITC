@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/yourname/telegram-auth/internal/model"
-	"github.com/yourname/telegram-auth/pkg/jwt"
+	"backend/internal/model"
+	"backend/pkg/jwt"
 )
 
 func TelegramAuth(req *model.AuthRequest, cfg *model.Config) (*model.AuthResponse, error) {

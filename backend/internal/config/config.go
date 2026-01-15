@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/yourname/telegram-auth/internal/model"
+	"backend/internal/model"
 )
 
 func LoadConfig() *model.Config{

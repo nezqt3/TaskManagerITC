@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/yourname/telegram-auth/internal/server"
-	"github.com/yourname/telegram-auth/internal/config"
+	"backend/internal/server"
+	"backend/internal/config"
 )
 
 func main() {

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/yourname/telegram-auth/internal/model"
-	"github.com/yourname/telegram-auth/internal/service"
-	"github.com/yourname/telegram-auth/internal/telegram"
+	"backend/internal/model"
+	"backend/internal/service"
+	"backend/internal/telegram"
 )
 
 func TelegramAuthHandler(cfg *model.Config) http.HandlerFunc {

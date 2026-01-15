@@ -3,8 +3,8 @@ package server
 import (
 	"net/http"
 	
-	"github.com/yourname/telegram-auth/internal/model"
-	"github.com/yourname/telegram-auth/internal/handler"
+	"backend/internal/model"
+	"backend/internal/handler"
 )
 
 type App struct {
@@ -15,11 +15,13 @@ type App struct {
 func New(cfg *model.Config) *App {
 	mux := http.NewServeMux()
 
+	// проверка работы api
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Hello"))
 	})
 
+	// end-point авторизации
 	mux.HandleFunc("/auth/telegram", handler.TelegramAuthHandler(cfg))
 
 	return &App {
