@@ -6,4 +6,5 @@ type Config struct {
 	JWTSecret string
 	JWTTTL string
 	DBDSN string
+	SPREADSHEET_URL string
 }

@@ -19,6 +19,7 @@ func LoadConfig() *model.Config{
 		JWTSecret: getEnv("JWT_SECRET", "supersecret"),
 		JWTTTL: getEnv("JWT_TTL", "24h"),
 		DBDSN: getEnv("DBDSN", ""),
+		SPREADSHEET_URL: getEnv("SPREADSHEET_URL", ""),
 	}
 
 	return cfg

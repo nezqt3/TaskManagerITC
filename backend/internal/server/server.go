@@ -2,9 +2,11 @@ package server
 
 import (
 	"net/http"
+	"encoding/json"
 	
 	"backend/internal/model"
 	"backend/internal/handler"
+	"backend/internal/service"
 )
 
 type App struct {
@@ -23,6 +25,17 @@ func New(cfg *model.Config) *App {
 
 	// end-point авторизации
 	mux.HandleFunc("/auth/telegram", handler.TelegramAuthHandler(cfg))
+
+	mux.HandleFunc("/get_users", func(w http.ResponseWriter, r *http.Request) {
+		users, err := service.GetUsers(cfg)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(users)
+	})
 
 	return &App {
 		router: mux,
