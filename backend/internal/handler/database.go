@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"backend/internal/model"
+	"backend/internal/model/database"
 )
 
 var DB *sql.DB
@@ -63,6 +64,23 @@ func createTables() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	taskTable := `
+	CREATE TABLE IF NOT EXISTS tasks (
+		id    INTEGER PRIMARY KEY, 
+		description TEXT, 
+		deadline DATE, 
+		status TEXT, 
+		user TEXT, 
+		title TEXT,
+		author TEXT,
+		id_project INTEGER
+	);
+	`
+	_, err = DB.Exec(taskTable)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func getAllUsers() []model.UserProfile {
@@ -108,6 +126,37 @@ func createUser(user *model.UserProfile) {
         user.NumberOfPhone,
         user.Role,
         user.MayToOpen,
+    )
+    if err != nil {
+        log.Fatal(err)
+    }
+}
+
+func createTask(task *database.Task) {
+	_, err := DB.Exec(
+        "INSERT INTO tasks VALUES(?,?,?,?,?,?,?,?)",
+        task.ID,
+        task.Description,
+        task.Deadline,
+        task.Status,
+        task.User,
+        task.Title,
+        task.Author,
+        task.IdProject,
+    )
+    if err != nil {
+        log.Fatal(err)
+    }
+}
+
+func createProject(project *database.Project) {
+	_, err := DB.Exec(
+        "INSERT INTO projects VALUES(?,?,?,?,?)",
+        project.ID,
+        project.Description,
+        project.Users,
+        project.Title,
+        project.Status,
     )
     if err != nil {
         log.Fatal(err)
