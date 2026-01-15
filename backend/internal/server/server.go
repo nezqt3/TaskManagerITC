@@ -26,6 +26,7 @@ func New(cfg *model.Config) *App {
 	// end-point авторизации
 	mux.HandleFunc("/auth/telegram", handler.TelegramAuthHandler(cfg))
 
+	// end-point получения пользователей
 	mux.HandleFunc("/get_users", func(w http.ResponseWriter, r *http.Request) {
 		users, err := service.GetUsers(cfg)
 		if err != nil {
