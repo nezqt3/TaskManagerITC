@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useSearchParams } from "react-router-dom";
 import "../styles/DashboardLayout.scss";
 
 const NAV_ITEMS = [
@@ -11,6 +11,13 @@ const NAV_ITEMS = [
 
 export default function DashboardLayout() {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const isProfileContext =
+    location.pathname.startsWith("/profile") ||
+    (location.pathname.startsWith("/projects/") &&
+      searchParams.get("from") === "profile");
+  const isProjectsContext =
+    location.pathname === "/projects" || location.pathname.startsWith("/projects/");
 
   return (
     <div className="dashboard-layout">
@@ -21,7 +28,13 @@ export default function DashboardLayout() {
               key={item.id}
               to={item.to}
               className={({ isActive }) =>
-                `main-nav__item${isActive ? " main-nav__item--active" : ""}`
+                `main-nav__item${
+                  (item.id === "profile" && isProfileContext) ||
+                  (item.id === "projects" && !isProfileContext && isProjectsContext) ||
+                  (!isProfileContext && !isProjectsContext && isActive)
+                    ? " main-nav__item--active"
+                    : ""
+                }`
               }
             >
               {item.label}

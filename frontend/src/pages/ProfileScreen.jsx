@@ -182,7 +182,7 @@ export default function ProfileScreen() {
                       <p className="project-card__title">{project.title}</p>
                       <Link
                         className="project-card__subtitle"
-                        to={`/projects/${project.id}`}
+                        to={`/projects/${project.id}?from=profile`}
                       >
                         {TASKS_LINK_TEXT}
                       </Link>

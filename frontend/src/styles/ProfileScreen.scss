@@ -83,7 +83,7 @@
 
 .profile-card__handle {
   margin: 0;
-  font-size: 16px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   color: rgba(255, 255, 255, 0.9);
   text-align: center;
@@ -91,7 +91,7 @@
 
 .profile-card__name {
   margin: 0;
-  font-size: 22px;
+  font-size: 24px;
   font-family: $font-title;
   text-align: center;
 }
@@ -201,12 +201,13 @@
 
 .project-card__title {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-family: $font-title;
   line-height: 1.2;
 }
 
 .project-card__subtitle {
+  font-size: 13px;
   margin: 2px 0 0;
   color: rgba(255, 255, 255, 0.55);
   text-transform: lowercase;
