@@ -124,12 +124,11 @@ func CreateTask(task *database.Task) error {
     projectTitle := project.Title
 
     deadlineTime, err := time.Parse("2006-01-02", task.Deadline)
-    if err != nil {
-        return fmt.Errorf("invalid deadline format: %v", err)
-    }
+	if err != nil {
+		return fmt.Errorf("invalid deadline format: %v", err)
+	}
 
-// Форматируем для отображения
-deadlineStr := deadlineTime.Format("02.01.2006")
+	deadlineStr := deadlineTime.Format("02.01.2006")
 
     if err != nil {
         fmt.Println("Ошибка %v \n", err)

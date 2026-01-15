@@ -10,6 +10,7 @@ import (
 	"backend/internal/model"
 	"backend/internal/model/database"
 	"backend/internal/service"
+	"backend/internal/middleware"
 )
 
 type App struct {
@@ -17,14 +18,26 @@ type App struct {
 	cfg    *model.Config
 }
 
+func WrapMiddleware(h http.HandlerFunc, middlewares ...func(http.Handler) http.Handler) http.Handler {
+	var handler http.Handler = h
+	for _, m := range middlewares {
+		handler = m(handler)
+	}
+	return handler
+}
+
 func New(cfg *model.Config) *App {
 	mux := http.NewServeMux()
 
 	// проверка работы api
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello"))
-	})
+	mux.Handle("/health", WrapMiddleware(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Hello"))
+		}),
+		middleware.JWTMiddleware(cfg.JWTSecret),
+		middleware.RoleMiddleware("Владелец", "Руководитель", "Почётный"),
+	))
 
 	// end-point авторизации
 	mux.HandleFunc("/auth/telegram", handler.TelegramAuthHandler(cfg))

@@ -14,16 +14,6 @@ func TelegramAuth(req *model.AuthRequest, cfg *model.Config) (*model.AuthRespons
 		return nil, errors.New("invalid auth request")
 	}
 
-	ttl, err := time.ParseDuration(cfg.JWTTTL)
-	if err != nil {
-		ttl = 24 * time.Hour
-	}
-
-	token, err := jwt.GenerateToken(req.ID, cfg.JWTSecret, ttl)
-	if err != nil {
-		return nil, err
-	}
-
 	telegramID := strconv.FormatInt(req.ID, 10)
 	dbUser, err := GetUserByTelegramID(cfg, telegramID)
 	if err != nil {
@@ -65,8 +55,18 @@ func TelegramAuth(req *model.AuthRequest, cfg *model.Config) (*model.AuthRespons
 		FullName:       fullName,
 		DateOfBirthday: dbUser.DateOfBirthday,
 		NumberOfPhone:  dbUser.NumberOfPhone,
-		Role:           dbUser.Role,
+		Role:           dbUser.Role,      
 		MayToOpen:      dbUser.MayToOpen,
+	}
+
+	ttl, err := time.ParseDuration(cfg.JWTTTL)
+	if err != nil {
+		ttl = 24 * time.Hour
+	}
+
+	token, err := jwt.GenerateToken(req.ID, dbUser.Role, cfg.JWTSecret, ttl)
+	if err != nil {
+		return nil, err
 	}
 
 	resp := &model.AuthResponse{
