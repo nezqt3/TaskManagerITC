@@ -25,17 +25,17 @@ func TelegramAuth(req *model.AuthRequest, cfg *model.Config) (*model.AuthRespons
 	}
 
 	telegramID := strconv.FormatInt(req.ID, 10)
-	csvUser, err := GetUserByTelegramID(cfg, telegramID)
+	dbUser, err := GetUserByTelegramID(cfg, telegramID)
 	if err != nil {
 		return nil, err
 	}
 
 	username := req.Username
 	if username == "" {
-		username = csvUser.Username
+		username = dbUser.Username
 	}
 
-	fullName := csvUser.FullName
+	fullName := dbUser.FullName
 	if fullName == "" {
 		if req.FirstName != "" || req.LastName != "" {
 			if req.LastName != "" {
@@ -46,17 +46,27 @@ func TelegramAuth(req *model.AuthRequest, cfg *model.Config) (*model.AuthRespons
 		}
 	}
 
+	firstName := req.FirstName
+	if firstName == "" {
+		firstName = dbUser.FirstName
+	}
+
+	lastName := req.LastName
+	if lastName == "" {
+		lastName = dbUser.LastName
+	}
+
 	profile := model.UserProfile{
 		TelegramID:     telegramID,
-		FirstName:      req.FirstName,
-		LastName:       req.LastName,
+		FirstName:      firstName,
+		LastName:       lastName,
 		Username:       username,
 		PhotoURL:       req.PhotoURL,
 		FullName:       fullName,
-		DateOfBirthday: csvUser.DateOfBirthday,
-		NumberOfPhone:  csvUser.NumberOfPhone,
-		Role:           csvUser.Role,
-		MayToOpen:      csvUser.MayToOpen,
+		DateOfBirthday: dbUser.DateOfBirthday,
+		NumberOfPhone:  dbUser.NumberOfPhone,
+		Role:           dbUser.Role,
+		MayToOpen:      dbUser.MayToOpen,
 	}
 
 	resp := &model.AuthResponse{

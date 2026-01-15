@@ -103,8 +103,18 @@ APP_PORT=8080
 TELEGRAM_BOT_TOKEN=
 JWT_SECRET=
 JWT_TTL=24h
+NAME_OF_DATABASE=backend/internal/model/database/projects_db.db
+DATABASE=sqlite3
+```
 
-SPREADSHEET_URL=
+---
+
+## 📦 Загрузка пользователей в БД
+
+CSV импортируется локально и записывается в таблицу `users`:
+
+```bash
+USERS_CSV_PATH=/path/to/users.csv python3 backend/scripts/seed_users.py
 ```
 
 ---

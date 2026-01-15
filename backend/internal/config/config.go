@@ -1,27 +1,26 @@
-package config 
+package config
 
 import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"backend/internal/model"
+	"github.com/joho/godotenv"
 )
 
-func LoadConfig() *model.Config{
+func LoadConfig() *model.Config {
 	if err := godotenv.Load(); err != nil {
 		log.Println(".env not found")
 	}
 
 	cfg := &model.Config{
-		AppPort: getEnv("APP_PORT", "8080"),
+		AppPort:          getEnv("APP_PORT", "8080"),
 		TelegramBotToken: getEnv("TELEGRAM_BOT_TOKEN", ""),
-		JWTSecret: getEnv("JWT_SECRET", "supersecret"),
-		JWTTTL: getEnv("JWT_TTL", "24h"),
-		DBDSN: getEnv("DBDSN", ""),
-		SPREADSHEET_URL: getEnv("SPREADSHEET_URL", ""),
+		JWTSecret:        getEnv("JWT_SECRET", "supersecret"),
+		JWTTTL:           getEnv("JWT_TTL", "24h"),
+		DBDSN:            getEnv("DBDSN", ""),
 		NAME_OF_DATABASE: getEnv("NAME_OF_DATABASE", ""),
-		DATABASE: getEnv("DATABASE", ""),
+		DATABASE:         getEnv("DATABASE", ""),
 	}
 
 	return cfg

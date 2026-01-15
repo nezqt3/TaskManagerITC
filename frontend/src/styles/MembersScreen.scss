@@ -1,17 +1,90 @@
 @use "./variables" as *;
 
-.empty-view {
-  min-height: 60vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.members-screen {
+  min-height: 0;
+  height: 100%;
   border-radius: 28px;
   background: var(--color-bg-alt);
   border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: clamp(18px, 3vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
-.empty-view__title {
+.members-screen__title {
   margin: 0;
-  font-size: clamp(28px, 4vw, 46px);
+  font-size: clamp(26px, 3.5vw, 40px);
   font-family: $font-title;
+}
+
+.members-screen__list {
+  display: grid;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.member-card {
+  background: var(--color-bg);
+  border-radius: 18px;
+  padding: 12px 18px;
+  border: 1px solid rgba(0, 128, 139, 0.35);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.member-card__main {
+  flex: 1;
+}
+
+.member-card__name {
+  margin: 0;
+  font-size: 14px;
+  font-family: $font-title;
+  line-height: 1.2;
+}
+
+.member-card__hint {
+  margin: 2px 0 0;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: lowercase;
+  line-height: 1.2;
+}
+
+.member-card__meta {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  text-align: right;
+  color: #ffffff;
+  line-height: 1.4;
+}
+
+.member-card__meta p {
+  margin: 0;
+}
+
+.member-card__meta span {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+@media (max-width: 1024px) {
+  .member-card {
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .member-card__meta {
+    text-align: left;
+  }
 }
