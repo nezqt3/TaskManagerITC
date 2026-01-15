@@ -5,8 +5,13 @@ import (
 	"database/sql"
 	"path/filepath"
 	"log"
+    "fmt"
+    "time"
 
+    "backend/internal/notifications"
 	"backend/internal/model"
+    "backend/internal/config"
+    "backend/internal/service"
 	"backend/internal/model/database"
 )
 
@@ -71,6 +76,7 @@ func createTables() {
 		description TEXT, 
 		deadline DATE, 
 		status TEXT, 
+        user_id INTEGER,
 		user TEXT, 
 		title TEXT,
 		author TEXT,
@@ -83,70 +89,25 @@ func createTables() {
 	}
 }
 
-func getAllUsers() []model.UserProfile {
-    rows, err := DB.Query("SELECT * FROM users")
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer rows.Close()
-
-    var users []model.UserProfile
-    for rows.Next() {
-        var u model.UserProfile
-        err := rows.Scan(
-            &u.TelegramID,
-            &u.FirstName,
-            &u.LastName,
-            &u.Username,
-            &u.PhotoURL,
-            &u.FullName,
-            &u.DateOfBirthday,
-            &u.NumberOfPhone,
-            &u.Role,
-            &u.MayToOpen,
-        )
-        if err != nil {
-            log.Fatal(err)
-        }
-        users = append(users, u)
-    }
-    return users
-}
-
-func createUser(user *model.UserProfile) {
-    _, err := DB.Exec(
-        "INSERT INTO users VALUES(?,?,?,?,?,?,?,?,?,?)",
-        user.TelegramID,
-        user.FirstName,
-        user.LastName,
-        user.Username,
-        user.PhotoURL,
-        user.FullName,
-        user.DateOfBirthday,
-        user.NumberOfPhone,
-        user.Role,
-        user.MayToOpen,
-    )
-    if err != nil {
-        log.Fatal(err)
-    }
-}
-
 func CreateTask(task *database.Task) error {
+    var message string
+    cfg := config.LoadConfig()
 	result, err := DB.Exec(`
 		INSERT INTO tasks (
 			description,
 			deadline,
 			status,
+            id_user,
 			user,
 			title,
 			author,
 			id_project
-		) VALUES (?, ?, ?, ?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	`,
 		task.Description,
 		task.Deadline,
 		task.Status,
+        task.IdUser,
 		task.User,
 		task.Title,
 		task.Author,
@@ -158,6 +119,41 @@ func CreateTask(task *database.Task) error {
 
 	id, _ := result.LastInsertId()
 	task.ID = int(id)
+    task.IdUser = int64(task.IdUser)
+    project, err := service.GetProjectByID(cfg, task.IdProject)
+    projectTitle := project.Title
+
+    deadlineTime, err := time.Parse("2006-01-02", task.Deadline)
+    if err != nil {
+        return fmt.Errorf("invalid deadline format: %v", err)
+    }
+
+// Форматируем для отображения
+deadlineStr := deadlineTime.Format("02.01.2006")
+
+    if err != nil {
+        fmt.Println("Ошибка %v \n", err)
+    }
+
+    message = fmt.Sprintf(
+        "📌 Вам пришла новая задача:\n\n"+
+        "Проект: %s\n"+
+        "Задача: %s\n"+
+        "Описание: %s\n\n"+
+        "👤 Исполнитель: %s\n"+
+        "✍️ Автор: %s\n"+
+        "⏰ Дедлайн: %s\n"+
+        "🆔 ID задачи: %d",
+        projectTitle,
+        task.Title,
+        task.Description,
+        task.User,
+        task.Author,
+        deadlineStr,
+        task.ID,
+    )
+
+    notifications.SendTelegramNotification(cfg, task.IdUser, message)
 
 	return nil
 }
@@ -193,38 +189,4 @@ func GetTasksByProjectID(projectID int) []database.Task {
     }
 
     return tasks
-}
-
-func createProject(project *database.Project) {
-	_, err := DB.Exec(
-        "INSERT INTO projects VALUES(?,?,?,?,?)",
-        project.ID,
-        project.Description,
-        project.Users,
-        project.Title,
-        project.Status,
-    )
-    if err != nil {
-        log.Fatal(err)
-    }
-}
-
-func getUserByTelegramID(telegramID string) (*model.UserProfile, error) {
-    u := &model.UserProfile{}
-    err := DB.QueryRow("SELECT * FROM users WHERE TelegramID = ?", telegramID).Scan(
-        &u.TelegramID,
-        &u.FirstName,
-        &u.LastName,
-        &u.Username,
-        &u.PhotoURL,
-        &u.FullName,
-        &u.DateOfBirthday,
-        &u.NumberOfPhone,
-        &u.Role,
-        &u.MayToOpen,
-    )
-    if err != nil {
-        return nil, err
-    }
-    return u, nil
 }

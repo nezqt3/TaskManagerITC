@@ -9,4 +9,5 @@ type Task struct {
 	Title       string `json:"title"`
 	Author      string `json:"author"`
 	IdProject   int    `json:"id_project"`
+	IdUser      int64  `json:"id_user"`
 }

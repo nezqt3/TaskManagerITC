@@ -144,6 +144,7 @@ func New(cfg *model.Config) *App {
 				Title:       input.Title,
 				Author:      input.Author,
 				IdProject:   input.IdProject,
+				IdUser:      input.IdUser,
 			}
 
 			if err := handler.CreateTask(&task); err != nil {
