@@ -34,3 +34,87 @@
 [INFO] 2026/01/16 20:36:54 migrate.go:42: no new migrations to apply
 [INFO] 2026/01/16 20:36:54 migrate.go:47: migration process finished in 1.286083ms
 [INFO] 2026/01/16 20:36:54 main.go:26: server started on port: 8080
+[INFO] 2026/01/16 23:23:27 main.go:20: application starting
+[INFO] 2026/01/16 23:23:27 database.go:16: Initializing database...
+[INFO] 2026/01/16 23:23:27 database.go:23: Database path resolved: /Users/rudactor/Documents/vscode_proj/TaskManagerITC/backend/internal/database/projects_db.db
+[INFO] 2026/01/16 23:23:27 database.go:30: Database opened successfully
+[INFO] 2026/01/16 23:23:27 database.go:36: Creating tables if not exists...
+[INFO] 2026/01/16 23:23:27 database.go:55: 'users' table ensured
+[INFO] 2026/01/16 23:23:27 database.go:70: 'projects' table ensured
+[INFO] 2026/01/16 23:23:27 database.go:93: 'tasks' table ensured
+[INFO] 2026/01/16 23:23:27 database.go:125: Column 'completion_message' already exists in table 'tasks'
+[INFO] 2026/01/16 23:23:27 database.go:125: Column 'review_message' already exists in table 'tasks'
+[INFO] 2026/01/16 23:23:27 database.go:125: Column 'reviewed_by' already exists in table 'tasks'
+[INFO] 2026/01/16 23:23:27 database.go:125: Column 'reviewed_at' already exists in table 'tasks'
+[INFO] 2026/01/16 23:23:27 database.go:116: 'events' table ensured
+[INFO] 2026/01/16 23:23:27 database.go:167: Seeding events table if empty...
+[INFO] 2026/01/16 23:23:27 database.go:173: Events table contains 1 rows
+[INFO] 2026/01/16 23:23:27 database.go:176: Events table already seeded
+[INFO] 2026/01/16 23:23:27 migrate.go:17: starting database migrations
+[INFO] 2026/01/16 23:23:27 migrate.go:18: database driver: sqlite3
+[INFO] 2026/01/16 23:23:27 migrate.go:19: database file: projects_db.db
+[INFO] 2026/01/16 23:23:27 migrate.go:20: migrations source: file://migrations
+[INFO] 2026/01/16 23:23:27 migrate.go:34: current migration version: 1, dirty: false
+[INFO] 2026/01/16 23:23:27 migrate.go:42: no new migrations to apply
+[INFO] 2026/01/16 23:23:27 migrate.go:47: migration process finished in 477.667µs
+[INFO] 2026/01/16 23:23:27 main.go:26: server started on port: 8080
+[ERROR] 2026/01/16 23:24:16 jwt.go:31: JWTMiddleware: invalid token: token has invalid claims: token is expired
+[ERROR] 2026/01/16 23:24:16 jwt.go:31: JWTMiddleware: invalid token: token has invalid claims: token is expired
+[ERROR] 2026/01/16 23:24:18 jwt.go:31: JWTMiddleware: invalid token: token has invalid claims: token is expired
+[ERROR] 2026/01/16 23:24:18 jwt.go:31: JWTMiddleware: invalid token: token has invalid claims: token is expired
+[ERROR] 2026/01/16 23:24:20 jwt.go:31: JWTMiddleware: invalid token: token has invalid claims: token is expired
+[ERROR] 2026/01/16 23:24:20 jwt.go:31: JWTMiddleware: invalid token: token has invalid claims: token is expired
+[ERROR] 2026/01/16 23:24:24 jwt.go:31: JWTMiddleware: invalid token: token has invalid claims: token is expired
+[ERROR] 2026/01/16 23:24:24 jwt.go:31: JWTMiddleware: invalid token: token has invalid claims: token is expired
+[ERROR] 2026/01/17 01:12:06 jwt.go:31: JWTMiddleware: invalid token: token has invalid claims: token is expired
+[ERROR] 2026/01/17 01:12:06 jwt.go:31: JWTMiddleware: invalid token: token has invalid claims: token is expired
+[INFO] 2026/01/17 01:12:57 auth.go:17: TelegramAuthHandler called
+[INFO] 2026/01/17 01:12:57 auth.go:25: Request decoded: {ID:578814803 FirstName:rudactor LastName: Username:rudactor PhotoURL:https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg AuthDate:1768601577 Hash:dfb9f540cd41100a837f261dde41688a8f92276d573d02793eec16cc753edba3}
+[INFO] 2026/01/17 01:12:57 auth.go:43: Data map for Telegram auth: map[auth_date:1768601577 first_name:rudactor hash:dfb9f540cd41100a837f261dde41688a8f92276d573d02793eec16cc753edba3 id:578814803 photo_url:https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg username:rudactor]
+[INFO] 2026/01/17 01:12:57 validator.go:15: Checking Telegram auth...
+[INFO] 2026/01/17 01:12:57 validator.go:26: Data string for hash: auth_date=1768601577
+first_name=rudactor
+id=578814803
+photo_url=https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg
+username=rudactor
+[INFO] 2026/01/17 01:12:57 validator.go:39: Telegram auth hash valid
+[INFO] 2026/01/17 01:12:57 auth.go:51: Telegram auth successful
+[INFO] 2026/01/17 01:12:57 auth.go:77: TelegramAuth: successful login for TelegramID '578814803', username 'rudactor'
+[INFO] 2026/01/17 01:12:57 auth.go:64: Response sent successfully: &{JWT:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1Nzg4MTQ4MDMsInJvbGUiOiLQoNGD0LrQvtCy0L7QtNC40YLQtdC70Ywg0L_RgNC-0LXQutGC0L7Qsiwg0JzQvtC00LXRgNCw0YLQvtGALCDQkNC00LzQuNC9IiwiZXhwIjoxNzY4Njg3OTc3fQ.LiFG1JaiQYqma0Wh2HjFYRFVWuqfvr7trM8afHw8ahw Profile:{TelegramID:578814803 FirstName:rudactor LastName: Username:rudactor PhotoURL:https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg FullName:Верещагин Илья Антонович DateOfBirthday:14.04.2006 NumberOfPhone:89090108406 Role:Руководитель проектов, Модератор, Админ MayToOpen:true}}
+[INFO] 2026/01/17 01:13:03 auth.go:17: TelegramAuthHandler called
+[INFO] 2026/01/17 01:13:03 auth.go:25: Request decoded: {ID:578814803 FirstName:rudactor LastName: Username:rudactor PhotoURL:https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg AuthDate:1768601583 Hash:0682d40411e71a76d04a0730a4416a01bc4d6a36178c7dc1e55cf619f4533135}
+[INFO] 2026/01/17 01:13:03 auth.go:43: Data map for Telegram auth: map[auth_date:1768601583 first_name:rudactor hash:0682d40411e71a76d04a0730a4416a01bc4d6a36178c7dc1e55cf619f4533135 id:578814803 photo_url:https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg username:rudactor]
+[INFO] 2026/01/17 01:13:03 validator.go:15: Checking Telegram auth...
+[INFO] 2026/01/17 01:13:03 validator.go:26: Data string for hash: auth_date=1768601583
+first_name=rudactor
+id=578814803
+photo_url=https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg
+username=rudactor
+[INFO] 2026/01/17 01:13:03 validator.go:39: Telegram auth hash valid
+[INFO] 2026/01/17 01:13:03 auth.go:51: Telegram auth successful
+[INFO] 2026/01/17 01:13:03 auth.go:77: TelegramAuth: successful login for TelegramID '578814803', username 'rudactor'
+[INFO] 2026/01/17 01:13:03 auth.go:64: Response sent successfully: &{JWT:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1Nzg4MTQ4MDMsInJvbGUiOiLQoNGD0LrQvtCy0L7QtNC40YLQtdC70Ywg0L_RgNC-0LXQutGC0L7Qsiwg0JzQvtC00LXRgNCw0YLQvtGALCDQkNC00LzQuNC9IiwiZXhwIjoxNzY4Njg3OTgzfQ.lz_Nh4mwMKvIEpSJY5g79OweL46LKjjoiAGP5oMs_3M Profile:{TelegramID:578814803 FirstName:rudactor LastName: Username:rudactor PhotoURL:https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg FullName:Верещагин Илья Антонович DateOfBirthday:14.04.2006 NumberOfPhone:89090108406 Role:Руководитель проектов, Модератор, Админ MayToOpen:true}}
+[INFO] 2026/01/17 01:20:00 main.go:20: application starting
+[INFO] 2026/01/17 01:20:00 database.go:16: Initializing database...
+[INFO] 2026/01/17 01:20:00 database.go:23: Database path resolved: /Users/rudactor/Documents/vscode_proj/TaskManagerITC/backend/internal/database/projects_db.db
+[INFO] 2026/01/17 01:20:00 database.go:30: Database opened successfully
+[INFO] 2026/01/17 01:20:00 database.go:36: Creating tables if not exists...
+[INFO] 2026/01/17 01:20:00 database.go:55: 'users' table ensured
+[INFO] 2026/01/17 01:20:00 database.go:70: 'projects' table ensured
+[INFO] 2026/01/17 01:20:00 database.go:93: 'tasks' table ensured
+[INFO] 2026/01/17 01:20:00 database.go:125: Column 'completion_message' already exists in table 'tasks'
+[INFO] 2026/01/17 01:20:00 database.go:125: Column 'review_message' already exists in table 'tasks'
+[INFO] 2026/01/17 01:20:00 database.go:125: Column 'reviewed_by' already exists in table 'tasks'
+[INFO] 2026/01/17 01:20:00 database.go:125: Column 'reviewed_at' already exists in table 'tasks'
+[INFO] 2026/01/17 01:20:00 database.go:116: 'events' table ensured
+[INFO] 2026/01/17 01:20:00 database.go:167: Seeding events table if empty...
+[INFO] 2026/01/17 01:20:00 database.go:173: Events table contains 1 rows
+[INFO] 2026/01/17 01:20:00 database.go:176: Events table already seeded
+[INFO] 2026/01/17 01:20:00 migrate.go:17: starting database migrations
+[INFO] 2026/01/17 01:20:00 migrate.go:18: database driver: sqlite3
+[INFO] 2026/01/17 01:20:00 migrate.go:19: database file: projects_db.db
+[INFO] 2026/01/17 01:20:00 migrate.go:20: migrations source: file://migrations
+[INFO] 2026/01/17 01:20:00 migrate.go:34: current migration version: 1, dirty: false
+[INFO] 2026/01/17 01:20:00 migrate.go:42: no new migrations to apply
+[INFO] 2026/01/17 01:20:00 migrate.go:47: migration process finished in 530.083µs
+[INFO] 2026/01/17 01:20:00 main.go:26: server started on port: 8080

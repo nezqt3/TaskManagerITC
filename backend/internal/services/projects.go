@@ -1,44 +1,30 @@
 package services
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
-	"path/filepath"
 	"strings"
 
-	_ "github.com/mattn/go-sqlite3"
-
 	"backend/internal/model"
+	"backend/internal/repository"
 )
 
 func GetProjects(cfg *model.Config) ([]model.Project, error) {
-	absPath, err := filepath.Abs(cfg.NAME_OF_DATABASE)
+	rows, err := repository.GetProjects(cfg)
 	if err != nil {
 		return nil, err
 	}
-
-	db, err := sql.Open(cfg.DATABASE, absPath)
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	rows, err := db.Query("SELECT id, title, description, status, users FROM projects ORDER BY id")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
 
 	var projects []model.Project
-	for rows.Next() {
-		var project model.Project
-		var rawUsers string
-
-		if err := rows.Scan(&project.ID, &project.Title, &project.Description, &project.Status, &rawUsers); err != nil {
-			return nil, err
+	for _, row := range rows {
+		project := model.Project{
+			ID:          row.ID,
+			Title:       row.Title,
+			Description: row.Description,
+			Status:      row.Status,
 		}
 
+		rawUsers := row.RawUsers
 		if rawUsers != "" {
 			if err := json.Unmarshal([]byte(rawUsers), &project.Members); err != nil {
 				return nil, fmt.Errorf("invalid project users: %w", err)
@@ -46,10 +32,6 @@ func GetProjects(cfg *model.Config) ([]model.Project, error) {
 		}
 
 		projects = append(projects, project)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
 	}
 
 	return projects, nil
@@ -80,40 +62,15 @@ func GetProjectsByUsername(cfg *model.Config, username string) ([]model.Project,
 }
 
 func UpdateProjectMembers(cfg *model.Config, projectID int, members []model.ProjectMember) error {
-	absPath, err := filepath.Abs(cfg.NAME_OF_DATABASE)
-	if err != nil {
-		return err
-	}
-
-	db, err := sql.Open(cfg.DATABASE, absPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
 	payload, err := json.Marshal(members)
 	if err != nil {
 		return err
 	}
-
-	_, err = db.Exec(`UPDATE projects SET users = ? WHERE id = ?`, string(payload), projectID)
-	return err
+	return repository.UpdateProjectMembers(cfg, projectID, string(payload))
 }
 
 func UpdateProjectStatus(cfg *model.Config, projectID int, status string) error {
-	absPath, err := filepath.Abs(cfg.NAME_OF_DATABASE)
-	if err != nil {
-		return err
-	}
-
-	db, err := sql.Open(cfg.DATABASE, absPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	_, err = db.Exec(`UPDATE projects SET status = ? WHERE id = ?`, status, projectID)
-	return err
+	return repository.UpdateProjectStatus(cfg, projectID, status)
 }
 
 func AddProjectMember(cfg *model.Config, projectID int, member model.ProjectMember) error {
@@ -183,37 +140,17 @@ func RemoveProjectMember(cfg *model.Config, projectID int, username string) erro
 }
 
 func UpdateProjectStatusFromTasks(cfg *model.Config, projectID int) error {
-	absPath, err := filepath.Abs(cfg.NAME_OF_DATABASE)
+	statuses, err := repository.GetTaskStatusesByProjectID(cfg, projectID)
 	if err != nil {
 		return err
 	}
-
-	db, err := sql.Open(cfg.DATABASE, absPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	rows, err := db.Query(`SELECT status FROM tasks WHERE id_project = ?`, projectID)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
 
 	allCompleted := true
-	hasTasks := false
-	for rows.Next() {
-		var status string
-		if err := rows.Scan(&status); err != nil {
-			return err
-		}
-		hasTasks = true
+	hasTasks := len(statuses) > 0
+	for _, status := range statuses {
 		if strings.ToLower(status) != strings.ToLower("Выполнена") {
 			allCompleted = false
 		}
-	}
-	if err := rows.Err(); err != nil {
-		return err
 	}
 
 	project, err := GetProjectByID(cfg, projectID)
