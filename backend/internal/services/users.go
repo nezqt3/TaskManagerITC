@@ -147,6 +147,71 @@ func GetUserByUsername(cfg *model.Config, username string) (*model.UserProfile, 
 	return u, nil
 }
 
+func SearchUsersByFullName(cfg *model.Config, fullName string) ([]model.UserProfile, error) {
+	absPath, err := filepath.Abs(cfg.NAME_OF_DATABASE)
+	if err != nil {
+		return nil, err
+	}
+	db, err := sql.Open(cfg.DATABASE, absPath)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	users := []model.UserProfile{}
+
+	rows, err := db.Query(`
+		SELECT 
+			TelegramID,
+			FirstName,
+			LastName,
+			Username,
+			PhotoURL,
+			FullName,
+			DateOfBirthday,
+			NumberOfPhone,
+			Role,
+			MayToOpen
+		FROM users
+		WHERE trim(FullName) LIKE ?
+		ORDER BY FullName
+	`, "%"+fullName+"%")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var user model.UserProfile
+
+		err := rows.Scan(
+			&user.TelegramID,
+			&user.FirstName,
+			&user.LastName,
+			&user.Username,
+			&user.PhotoURL,
+			&user.FullName,
+			&user.DateOfBirthday,
+			&user.NumberOfPhone,
+			&user.Role,
+			&user.MayToOpen,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func UpdateUser(cfg *model.Config, telegramID string, updates *model.UserProfile) error {
 	absPath, err := filepath.Abs(cfg.NAME_OF_DATABASE)
 	if err != nil {

@@ -583,6 +583,31 @@ func New(cfg *model.Config) *App {
 		cfg:    cfg,
 	}
 
+	mux.Handle("/search_users", WrapMiddleware(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodGet {
+				http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+				return
+			}
+
+			term := strings.TrimSpace(r.URL.Query().Get("term"))
+			if term == "" {
+				http.Error(w, "term is required", http.StatusBadRequest)
+				return
+			}
+
+			users, err := services.SearchUsersByFullName(cfg, term)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(users)
+		}),
+		middleware.JWTMiddleware(cfg.JWTSecret),
+	))
+
 }
 
 func (a *App) Run(addr string) error {
