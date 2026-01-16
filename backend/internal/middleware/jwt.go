@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"backend/internal/model"
+	"backend/internal/logger"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -14,6 +15,7 @@ func JWTMiddleware(secret string) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request)  {
 			auth := r.Header.Get("Authorization")
 			if auth == "" {
+				logger.Error.Println("JWTMiddleware: missing Authorization header")
 				http.Error(w, "unauthorized: missing authorization", http.StatusUnauthorized)
 				return
 			}
@@ -26,6 +28,7 @@ func JWTMiddleware(secret string) func(http.Handler) http.Handler {
 			})
 
 			if err != nil {
+				logger.Error.Printf("JWTMiddleware: invalid token: %v\n", err)
 				http.Error(w, "invalid token", http.StatusUnauthorized)
 				return
 			}

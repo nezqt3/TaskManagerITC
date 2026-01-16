@@ -4,17 +4,28 @@ import (
 	"log"
 
 	"backend/internal/config"
+	"backend/internal/database"
 	"backend/internal/handler"
+	"backend/internal/logger"
 	"backend/internal/server"
 )
 
 func main() {
 	cfg := config.LoadConfig()
+
+	if err := logger.Init("logs/app.log"); err != nil {
+		log.Fatalf("failed to init logger: %v", err)
+	}
+
+	logger.Info.Println("application starting")
+
 	handler.InitDatabase(cfg)
+	database.RunMigrations()
 	app := server.New(cfg)
 
-	log.Println("Server have already started on port", cfg.AppPort)
+	logger.Info.Printf("server started on port: %s", cfg.AppPort)
+
 	if err := app.Run(":" + cfg.AppPort); err != nil {
-		log.Fatal(err)
+		logger.Fatal.Println("server stopped with error:", err)
 	}
 }

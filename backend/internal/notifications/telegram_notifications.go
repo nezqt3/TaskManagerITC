@@ -3,11 +3,11 @@ package notifications
 import (
 	"net/http"
 	"net/url"
-	"log"
 	"io"
 
 	"fmt"
 	"backend/internal/model"
+	"backend/internal/logger"
 )
 
 func SendTelegramNotification(cfg *model.Config, id int64, text string) error{
@@ -21,7 +21,7 @@ func SendTelegramNotification(cfg *model.Config, id int64, text string) error{
 
 	body, _ := io.ReadAll(resp.Body)
 
-	log.Printf(
+	logger.Info.Printf(
 		"Telegram response: status=%d body=%s",
 		resp.StatusCode,
 		string(body),

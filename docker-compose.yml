@@ -1,0 +1,20 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend-api
+    volumes:
+      - ./backend/projects_db.db:/app/projects_db.db
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  migrator:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.migrate
+    container_name: backend-migrator
+    volumes:
+      - ./backend/projects_db.db:/app/projects_db.db
+    restart: unless-stopped

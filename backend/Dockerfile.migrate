@@ -1,0 +1,16 @@
+FROM golang:1.22-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache tzdata bash curl busybox-suid
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN go build -o migrate ./cmd/api
+
+RUN echo "0 0 * * * /app/migrate >> /var/log/migrate.log 2>&1" > /etc/crontabs/root
+
+CMD ["crond", "-f"]
