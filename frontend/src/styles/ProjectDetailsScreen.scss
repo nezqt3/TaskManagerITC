@@ -24,6 +24,7 @@
   flex-direction: column;
   gap: 14px;
   min-width: 0;
+  min-height: 0;
   border-radius: 32px;
   background: var(--color-bg-alt);
   border: 1px solid rgba(0, 128, 139, 0.2);
@@ -99,6 +100,14 @@
   height: 100%;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+}
+
+.project-details__tasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .project-details__tasks h3,
@@ -108,11 +117,64 @@
   font-family: $font-title;
 }
 
+.project-details__tasks-count {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(0, 128, 139, 0.35);
+}
+
+.project-details__tasks-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 128, 139, 0.45);
+  background: rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.project-details__task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
 .project-details__task {
   border-radius: 16px;
   padding: 12px;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(0, 128, 139, 0.3);
+}
+
+.project-details__task-card {
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(0, 128, 139, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.project-details__task-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.project-details__task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .project-details__task-title {
@@ -124,6 +186,83 @@
   margin: 6px 0 0;
   color: rgba(255, 255, 255, 0.55);
   font-size: 12px;
+}
+
+.project-details__task-form {
+  border-radius: 18px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 128, 139, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.project-details__task-form h4 {
+  margin: 0;
+  font-size: 14px;
+  font-family: $font-title;
+}
+
+.project-details__form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.project-details__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.project-details__field input,
+.project-details__field select,
+.project-details__field textarea {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 128, 139, 0.4);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.project-details__field textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.project-details__field--full {
+  grid-column: 1 / -1;
+}
+
+.project-details__form-error {
+  margin: 0;
+  color: #f5bcbc;
+  font-size: 12px;
+}
+
+.project-details__form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.project-details__submit {
+  border-radius: 12px;
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.project-details__submit:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .project-details__side {
@@ -217,5 +356,9 @@
   .project-details__back {
     width: 36px;
     height: 36px;
+  }
+
+  .project-details__form-grid {
+    grid-template-columns: 1fr;
   }
 }
