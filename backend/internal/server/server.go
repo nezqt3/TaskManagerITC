@@ -578,11 +578,6 @@ func New(cfg *model.Config) *App {
 		middleware.JWTMiddleware(cfg.JWTSecret),
 	))
 
-	return &App{
-		router: withCORS(mux),
-		cfg:    cfg,
-	}
-
 	mux.Handle("/search_users", WrapMiddleware(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.Method != http.MethodGet {
@@ -607,6 +602,11 @@ func New(cfg *model.Config) *App {
 		}),
 		middleware.JWTMiddleware(cfg.JWTSecret),
 	))
+
+	return &App{
+		router: withCORS(mux),
+		cfg:    cfg,
+	}
 
 }
 

@@ -97,6 +97,22 @@ def seed_database(db_path: str, users: list[dict]) -> None:
     conn.commit()
     conn.close()
 
+def add_main_role(db_path, role: str) -> str:
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        UPDATE users
+        SET Role = ?
+        WHERE Username IN (?, ?)
+        """,
+        (role, "rudactor", "nezqt3")
+    )
+
+    conn.commit()
+    conn.close()
 
 def main() -> None:
     source = os.getenv("USERS_CSV_PATH", "").strip()
@@ -110,13 +126,13 @@ def main() -> None:
                 os.path.dirname(__file__),
                 "..",
                 "internal",
-                "model",
                 "database",
                 "projects_db.db",
             )
         ),
     )
 
+    add_main_role(db_path, "Руководитель проектов, Модератор, Админ")
     rows = fetch_csv(source)
     users = parse_users(rows)
     seed_database(db_path, users)
