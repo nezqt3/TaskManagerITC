@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"backend/internal/model"
-	"backend/internal/service"
+	"backend/internal/services"
 	"backend/internal/telegram"
 )
 
@@ -40,9 +40,9 @@ func TelegramAuthHandler(cfg *model.Config) http.HandlerFunc {
 			return
 		}
 
-		resp, err := service.TelegramAuth(&req, cfg)
+		resp, err := services.TelegramAuth(&req, cfg)
 		if err != nil {
-			if errors.Is(err, service.ErrUserNotFound) {
+			if errors.Is(err, services.ErrUserNotFound) {
 				http.Error(w, "user not found", http.StatusNotFound)
 				return
 			}

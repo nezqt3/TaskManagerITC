@@ -8,7 +8,7 @@ import (
 
 	"backend/internal/handler"
 	"backend/internal/model"
-	"backend/internal/service"
+	"backend/internal/services"
 	"backend/internal/middleware"
 )
 
@@ -43,7 +43,7 @@ func New(cfg *model.Config) *App {
 
 	// end-point получения пользователей
 	mux.HandleFunc("/get_users", func(w http.ResponseWriter, r *http.Request) {
-		users, err := service.GetUsers(cfg)
+		users, err := services.GetUsers(cfg)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -72,9 +72,9 @@ func New(cfg *model.Config) *App {
 				http.Error(w, "invalid id", http.StatusBadRequest)
 				return
 			}
-			projects, err = service.GetProjectsByID(cfg, idInt)
+			projects, err = services.GetProjectsByID(cfg, idInt)
 		} else {
-			projects, err = service.GetProjects(cfg)
+			projects, err = services.GetProjects(cfg)
 		}
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -104,7 +104,7 @@ func New(cfg *model.Config) *App {
 			return
 		}
 
-		project, err := service.GetProjectByID(cfg, id)
+		project, err := services.GetProjectByID(cfg, id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -135,7 +135,7 @@ func New(cfg *model.Config) *App {
 				return
 			}
 
-			tasks, _ := service.GetTasksByProjectID(idInt)
+			tasks, _ := services.GetTasksByProjectID(idInt)
 
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(tasks)
@@ -159,7 +159,7 @@ func New(cfg *model.Config) *App {
 				IdUser:      input.IdUser,
 			}
 
-			if err := service.CreateTask(&task); err != nil {
+			if err := services.CreateTask(&task); err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}

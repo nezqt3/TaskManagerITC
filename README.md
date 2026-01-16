@@ -26,6 +26,8 @@ TaskManagerITC/
 │   ├── internal/                # Внутренняя логика приложения
 │   │   ├── handlers             # HTTP‑обработчики
 │   │   ├── services             # Бизнес‑логика
+│   │   ├── notificatios         # Настройка уведомлений
+│   │   ├── database             # База данных
 │   │   ├── repository           # Работа с БД
 │   │   └── models               # Модели данных
 │   ├── pkg/

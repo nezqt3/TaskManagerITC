@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	_ "github.com/mattn/go-sqlite3"
