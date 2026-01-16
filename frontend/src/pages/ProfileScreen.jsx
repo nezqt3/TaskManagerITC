@@ -1,23 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/ProfileScreen.scss";
+import { getAuthHeaders, getProfile } from "../utils/auth";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 const TASKS_LINK_TEXT = "просмотреть задачу";
 
 export default function ProfileScreen() {
-  const [profile] = useState(() => {
-    const stored = localStorage.getItem("profile");
-    if (!stored) {
-      return null;
-    }
-
-    try {
-      return JSON.parse(stored);
-    } catch (error) {
-      return null;
-    }
-  });
+  const [profile] = useState(() => getProfile());
 
   const derivedProfile = useMemo(() => {
     const firstName =
@@ -60,7 +50,9 @@ export default function ProfileScreen() {
     setIsLoadingProjects(true);
     setProjectsError("");
 
-    fetch(`${API_BASE}/projects?username=${encodeURIComponent(username)}`)
+    fetch(`${API_BASE}/projects?username=${encodeURIComponent(username)}`, {
+      headers: getAuthHeaders(),
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error("failed");

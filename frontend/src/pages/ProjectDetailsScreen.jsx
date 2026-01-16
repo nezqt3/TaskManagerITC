@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import "../styles/ProjectDetailsScreen.scss";
+import { getAuthHeaders, getProfile, isAdmin, isModerator, parseRoles } from "../utils/auth";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
@@ -16,34 +17,29 @@ export default function ProjectDetailsScreen() {
   const [isSavingTask, setIsSavingTask] = useState(false);
   const [taskFormError, setTaskFormError] = useState("");
   const [showTaskForm, setShowTaskForm] = useState(false);
-  const [profile] = useState(() => {
-    const stored = localStorage.getItem("profile");
-    if (!stored) {
-      return null;
-    }
-
-    try {
-      return JSON.parse(stored);
-    } catch (error) {
-      return null;
-    }
-  });
+  const [completionNotes, setCompletionNotes] = useState({});
+  const [usersDirectory, setUsersDirectory] = useState({});
+  const profile = useMemo(() => getProfile(), []);
+  const [effectiveRole, setEffectiveRole] = useState(profile?.role || "");
   const [taskForm, setTaskForm] = useState({
     title: "",
     description: "",
     deadline: "",
-    status: "Новая",
     user: "",
   });
   const fromProfile = searchParams.get("from") === "profile";
   const backPath = fromProfile ? "/profile" : "/projects";
+
+  const authHeaders = useMemo(() => getAuthHeaders(), []);
 
   useEffect(() => {
     let isActive = true;
     setIsLoading(true);
     setProjectError("");
 
-    fetch(`${API_BASE}/projects/${id}`)
+    fetch(`${API_BASE}/projects/${id}`, {
+      headers: authHeaders,
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error("failed");
@@ -72,14 +68,16 @@ export default function ProjectDetailsScreen() {
     return () => {
       isActive = false;
     };
-  }, [id]);
+  }, [authHeaders, id]);
 
   useEffect(() => {
     let isActive = true;
     setIsLoadingTasks(true);
     setTasksError("");
 
-    fetch(`${API_BASE}/tasks?id_project=${id}`)
+    fetch(`${API_BASE}/tasks?id_project=${id}`, {
+      headers: authHeaders,
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error("failed");
@@ -108,7 +106,58 @@ export default function ProjectDetailsScreen() {
     return () => {
       isActive = false;
     };
-  }, [id]);
+  }, [authHeaders, id]);
+
+  useEffect(() => {
+    let isActive = true;
+    fetch(`${API_BASE}/get_users`, { headers: authHeaders })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("failed");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (!isActive) {
+          return;
+        }
+        const users = Array.isArray(data) ? data : [];
+        const directory = {};
+        users.forEach((user) => {
+          if (!user.username) {
+            return;
+          }
+          directory[user.username.toLowerCase()] = {
+            telegramId: user.telegram_id,
+            fullName:
+              user.full_name ||
+              [user.first_name, user.last_name].filter(Boolean).join(" "),
+          };
+        });
+        const profileId = profile?.telegram_id;
+        const profileUsername = profile?.username?.replace(/^@/, "").toLowerCase();
+        const matchedUser = users.find(
+          (user) =>
+            (profileId && user.telegram_id === profileId) ||
+            (profileUsername &&
+              user.username?.toLowerCase() === profileUsername)
+        );
+        if (matchedUser?.role) {
+          setEffectiveRole(matchedUser.role);
+        }
+        setUsersDirectory(directory);
+      })
+      .catch(() => {
+        if (!isActive) {
+          return;
+        }
+        setUsersDirectory({});
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [authHeaders, profile]);
 
   const members = useMemo(() => {
     if (!project?.members) {
@@ -117,8 +166,47 @@ export default function ProjectDetailsScreen() {
     return project.members.map((member) => ({
       name: member.full_name || member.username || "Участник",
       role: member.role || "",
+      username: member.username || "",
     }));
   }, [project]);
+
+  const isProjectMember = useMemo(() => {
+    const profileUsername = profile?.username
+      ? profile.username.replace(/^@/, "").toLowerCase()
+      : "";
+    if (!profileUsername || !project?.members) {
+      return false;
+    }
+    return project.members.some(
+      (member) =>
+        (member.username || "").replace(/^@/, "").toLowerCase() ===
+        profileUsername
+    );
+  }, [profile, project]);
+
+  const memberRole = useMemo(() => {
+    const profileUsername = profile?.username
+      ? profile.username.replace(/^@/, "").toLowerCase()
+      : "";
+    if (!profileUsername || !project?.members) {
+      return "";
+    }
+    const member = project.members.find(
+      (entry) =>
+        (entry.username || "").replace(/^@/, "").toLowerCase() ===
+        profileUsername
+    );
+    return member?.role || "";
+  }, [profile, project]);
+
+  const isProjectLeader = useMemo(() => {
+    const roles = parseRoles(memberRole);
+    return roles.includes("руководитель");
+  }, [memberRole]);
+
+  const canEditTasks =
+    isAdmin(effectiveRole) ||
+    (isProjectMember && (isModerator(effectiveRole) || isProjectLeader));
 
   const taskAuthor = useMemo(() => {
     const fullName =
@@ -127,6 +215,8 @@ export default function ProjectDetailsScreen() {
 
     return fullName || profile?.username || "";
   }, [profile]);
+
+  const canSubmitCompletion = () => Boolean(profile);
 
   const handleTaskChange = (event) => {
     const { name, value } = event.target;
@@ -147,20 +237,27 @@ export default function ProjectDetailsScreen() {
     setIsSavingTask(true);
     setTaskFormError("");
 
+    const assignedUser = taskForm.user.trim();
+    const directoryEntry = assignedUser
+      ? usersDirectory[assignedUser.replace(/^@/, "").toLowerCase()]
+      : null;
+
     const payload = {
       title: trimmedTitle,
       description: taskForm.description.trim(),
       deadline: taskForm.deadline,
-      status: taskForm.status || "Новая",
-      user: taskForm.user.trim(),
+      status: "Новая",
+      user: assignedUser,
       author: taskAuthor,
       id_project: Number(id),
+      id_user: directoryEntry?.telegramId ? Number(directoryEntry.telegramId) : 0,
     };
 
     fetch(`${API_BASE}/tasks`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...authHeaders,
       },
       body: JSON.stringify(payload),
     })
@@ -171,12 +268,11 @@ export default function ProjectDetailsScreen() {
         return response.json();
       })
       .then((data) => {
-        setTasks((prev) => [...prev, data]);
+        setTasks((prev) => [data, ...prev]);
         setTaskForm({
           title: "",
           description: "",
           deadline: "",
-          status: "Новая",
           user: "",
         });
         setShowTaskForm(false);
@@ -186,6 +282,41 @@ export default function ProjectDetailsScreen() {
       })
       .finally(() => {
         setIsSavingTask(false);
+      });
+  };
+
+  const handleCompletionSubmit = (taskId) => {
+    const message = (completionNotes[taskId] || "").trim();
+    fetch(`${API_BASE}/tasks/${taskId}/complete`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeaders,
+      },
+      body: JSON.stringify({ message }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("failed");
+        }
+        return response.text();
+      })
+      .then(() => {
+        setTasks((prev) =>
+          prev.map((task) =>
+            task.id === taskId
+              ? {
+                  ...task,
+                  status: "На проверке",
+                  completion_message: message,
+                }
+              : task
+          )
+        );
+        setCompletionNotes((prev) => ({ ...prev, [taskId]: "" }));
+      })
+      .catch(() => {
+        setTasksError("Не удалось отправить отчет по задаче");
       });
   };
 
@@ -210,9 +341,14 @@ export default function ProjectDetailsScreen() {
                 {project?.description || "Описание пока не добавлено."}
               </p>
             </div>
-            <button className="project-details__action" type="button">
-              Управление
-            </button>
+            {canEditTasks && (
+              <Link
+                className="project-details__action"
+                to={`/projects/${id}/manage`}
+              >
+                Управление
+              </Link>
+            )}
           </header>
 
           {isLoading && (
@@ -231,14 +367,16 @@ export default function ProjectDetailsScreen() {
                 <span className="project-details__tasks-count">
                   {tasks.length}
                 </span>
-                <button
-                  className="project-details__tasks-toggle"
-                  type="button"
-                  onClick={() => setShowTaskForm((prev) => !prev)}
-                  aria-expanded={showTaskForm}
-                >
-                  {showTaskForm ? "—" : "+"}
-                </button>
+                {canEditTasks && (
+                  <button
+                    className="project-details__tasks-toggle"
+                    type="button"
+                    onClick={() => setShowTaskForm((prev) => !prev)}
+                    aria-expanded={showTaskForm}
+                  >
+                    {showTaskForm ? "—" : "+"}
+                  </button>
+                )}
               </div>
               <div className="project-details__task-list">
                 {isLoadingTasks && (
@@ -250,23 +388,17 @@ export default function ProjectDetailsScreen() {
                 )}
                 {!isLoadingTasks && tasksError && (
                   <div className="project-details__task">
-                    <p className="project-details__task-title">
-                      {tasksError}
+                    <p className="project-details__task-title">{tasksError}</p>
+                  </div>
+                )}
+                {!isLoadingTasks && !tasksError && tasks.length === 0 && (
+                  <div className="project-details__task">
+                    <p className="project-details__task-title">Задач пока нет</p>
+                    <p className="project-details__task-subtitle">
+                      Здесь появятся реальные задачи проекта.
                     </p>
                   </div>
                 )}
-                {!isLoadingTasks &&
-                  !tasksError &&
-                  tasks.length === 0 && (
-                    <div className="project-details__task">
-                      <p className="project-details__task-title">
-                        Задач пока нет
-                      </p>
-                      <p className="project-details__task-subtitle">
-                        Здесь появятся реальные задачи проекта.
-                      </p>
-                    </div>
-                  )}
                 {!isLoadingTasks &&
                   !tasksError &&
                   tasks.map((task) => (
@@ -286,16 +418,47 @@ export default function ProjectDetailsScreen() {
                       </div>
                       <div className="project-details__task-meta">
                         <span>{task.status || "Без статуса"}</span>
-                        {task.deadline && (
-                          <span>Срок: {task.deadline}</span>
-                        )}
+                        {task.deadline && <span>Срок: {task.deadline}</span>}
                         {task.user && <span>Исп.: {task.user}</span>}
                         {task.author && <span>Автор: {task.author}</span>}
                       </div>
+                      {task.completion_message && (
+                        <div className="project-details__task-note">
+                          <strong>Отчет:</strong> {task.completion_message}
+                        </div>
+                      )}
+                      {task.review_message && (
+                        <div className="project-details__task-note">
+                          <strong>Ответ модератора:</strong> {task.review_message}
+                        </div>
+                      )}
+                      {task.status !== "На проверке" &&
+                        task.status !== "Выполнена" &&
+                        canSubmitCompletion(task) && (
+                          <div className="project-details__task-completion">
+                            <textarea
+                              placeholder="Сообщение о выполненной работе"
+                              rows={2}
+                              value={completionNotes[task.id] || ""}
+                              onChange={(event) =>
+                                setCompletionNotes((prev) => ({
+                                  ...prev,
+                                  [task.id]: event.target.value,
+                                }))
+                              }
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleCompletionSubmit(task.id)}
+                            >
+                              Отправить на проверку
+                            </button>
+                          </div>
+                        )}
                     </article>
                   ))}
               </div>
-              {showTaskForm && (
+              {showTaskForm && canEditTasks && (
                 <form
                   className="project-details__task-form"
                   onSubmit={handleTaskSubmit}
@@ -319,6 +482,7 @@ export default function ProjectDetailsScreen() {
                         value={taskForm.user}
                         onChange={handleTaskChange}
                         placeholder="username"
+                        list="project-members"
                       />
                     </label>
                     <label className="project-details__field">
@@ -329,18 +493,6 @@ export default function ProjectDetailsScreen() {
                         value={taskForm.deadline}
                         onChange={handleTaskChange}
                       />
-                    </label>
-                    <label className="project-details__field">
-                      Статус
-                      <select
-                        name="status"
-                        value={taskForm.status}
-                        onChange={handleTaskChange}
-                      >
-                        <option value="Новая">Новая</option>
-                        <option value="В работе">В работе</option>
-                        <option value="Готово">Готово</option>
-                      </select>
                     </label>
                     <label className="project-details__field project-details__field--full">
                       Описание
@@ -353,10 +505,18 @@ export default function ProjectDetailsScreen() {
                       />
                     </label>
                   </div>
+                  <datalist id="project-members">
+                    {members.map((member) => (
+                      <option
+                        key={member.username || member.name}
+                        value={member.username}
+                      >
+                        {member.name}
+                      </option>
+                    ))}
+                  </datalist>
                   {taskFormError && (
-                    <p className="project-details__form-error">
-                      {taskFormError}
-                    </p>
+                    <p className="project-details__form-error">{taskFormError}</p>
                   )}
                   <div className="project-details__form-actions">
                     <button
@@ -386,17 +546,11 @@ export default function ProjectDetailsScreen() {
                 </div>
               )}
               {!isLoading && projectError && (
-                <div className="project-details__member">
-                  {projectError}
-                </div>
+                <div className="project-details__member">{projectError}</div>
               )}
-              {!isLoading &&
-                !projectError &&
-                members.length === 0 && (
-                  <div className="project-details__member">
-                    Нет участников
-                  </div>
-                )}
+              {!isLoading && !projectError && members.length === 0 && (
+                <div className="project-details__member">Нет участников</div>
+              )}
               {!isLoading &&
                 !projectError &&
                 members.map((member) => (

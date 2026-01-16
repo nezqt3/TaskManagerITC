@@ -1,9 +1,10 @@
 package model
 
 type ProjectMember struct {
-	Username string `json:"username"`
-	FullName string `json:"full_name"`
-	Role     string `json:"role"`
+	Username   string `json:"username"`
+	FullName   string `json:"full_name"`
+	Role       string `json:"role"`
+	TelegramID string `json:"telegram_id,omitempty"`
 }
 
 type Project struct {

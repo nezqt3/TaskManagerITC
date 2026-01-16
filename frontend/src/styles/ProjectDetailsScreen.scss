@@ -35,7 +35,7 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 12px;
-  align-items: center;
+  align-items: start;
 }
 
 .project-details__back {
@@ -50,6 +50,7 @@
   font-size: 18px;
   text-decoration: none;
   background: rgba(0, 0, 0, 0.25);
+  align-self: start;
 }
 
 .project-details__title {
@@ -69,7 +70,7 @@
 .project-details__name {
   margin: 0;
   font-family: $font-title;
-  font-size: clamp(20px, 2.6vw, 28px);
+  font-size: clamp(18px, 2.2vw, 24px);
 }
 
 .project-details__description {
@@ -83,10 +84,15 @@
 .project-details__action {
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  padding: 8px 14px;
+  padding: 10px 14px;
   background: rgba(0, 0, 0, 0.35);
   color: #ffffff;
   font-size: 12px;
+  align-self: start;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .project-details__tasks {
@@ -100,13 +106,13 @@
   height: 100%;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .project-details__tasks-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
 }
 
@@ -135,6 +141,7 @@
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
+  margin-left: auto;
 }
 
 .project-details__task-list {
@@ -175,6 +182,41 @@
   gap: 8px 12px;
   font-size: 11px;
   color: rgba(255, 255, 255, 0.6);
+}
+
+.project-details__task-note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.project-details__task-completion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.project-details__task-completion textarea {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 128, 139, 0.4);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  padding: 8px 10px;
+  font-size: 12px;
+  resize: vertical;
+}
+
+.project-details__task-completion button {
+  align-self: flex-start;
+  border-radius: 12px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  font-size: 12px;
+  cursor: pointer;
 }
 
 .project-details__task-title {

@@ -78,6 +78,64 @@
   margin-right: 4px;
 }
 
+.member-card__edit {
+  display: grid;
+  gap: 10px;
+}
+
+.member-card__edit--full {
+  grid-column: 1 / -1;
+}
+
+.member-card__edit label,
+.member-card__meta label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.member-card__edit input,
+.member-card__edit select,
+.member-card__meta input {
+  border-radius: 10px;
+  border: 1px solid rgba(0, 128, 139, 0.4);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.member-card__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.member-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.member-card__actions button {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  padding: 6px 12px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.member-card__actions .ghost {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+}
+
 @media (max-width: 1024px) {
   .member-card {
     flex-direction: column;
@@ -86,5 +144,10 @@
 
   .member-card__meta {
     text-align: left;
+  }
+
+  .member-card__actions {
+    flex-direction: row;
+    justify-content: flex-start;
   }
 }

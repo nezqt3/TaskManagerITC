@@ -18,6 +18,35 @@
   font-family: $font-title;
 }
 
+.projects-screen__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.projects-screen__tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.projects-screen__tab {
+  border-radius: 999px;
+  padding: 6px 16px;
+  border: 1px solid rgba(0, 128, 139, 0.35);
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.projects-screen__tab--active {
+  color: #ffffff;
+  border-color: rgba(0, 200, 218, 0.5);
+  background: rgba(0, 0, 0, 0.45);
+}
+
 .projects-screen__list {
   display: grid;
   gap: 12px;

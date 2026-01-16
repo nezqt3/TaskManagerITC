@@ -1,0 +1,329 @@
+@use "./variables" as *;
+
+.project-management {
+  padding: clamp(12px, 2vw, 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+}
+
+.project-management__header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: start;
+  background: var(--color-bg-alt);
+  border-radius: 24px;
+  padding: 16px;
+  border: 1px solid rgba(0, 128, 139, 0.25);
+}
+
+.project-management__back {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 128, 139, 0.45);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.project-management__label {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.project-management__title {
+  margin: 6px 0 0;
+  font-size: clamp(18px, 2.4vw, 24px);
+  font-family: $font-title;
+}
+
+.project-management__subtitle {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.project-management__role {
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.project-management__role strong {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.project-management__layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  min-height: 0;
+  flex: 1;
+}
+
+.project-management__panel {
+  background: var(--color-bg-alt);
+  border-radius: 24px;
+  padding: 16px;
+  border: 1px solid rgba(0, 128, 139, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.project-management__panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-management__panel-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-family: $font-title;
+}
+
+.project-management__panel-header span {
+  border-radius: 999px;
+  border: 1px solid rgba(0, 128, 139, 0.45);
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.project-management__members,
+.project-management__tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.project-management__hint {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.project-management__error {
+  border-radius: 14px;
+  background: rgba(255, 130, 130, 0.12);
+  border: 1px solid rgba(255, 130, 130, 0.4);
+  padding: 10px 14px;
+  font-size: 12px;
+}
+
+.member-row {
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 128, 139, 0.35);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.4fr);
+  gap: 12px;
+}
+
+.member-row__info p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.member-row__info span {
+  display: block;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.member-row__controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  font-size: 11px;
+  align-items: center;
+}
+
+.member-row__controls select,
+.member-row__controls input {
+  border-radius: 10px;
+  border: 1px solid rgba(0, 128, 139, 0.4);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  padding: 6px 8px;
+}
+
+.member-row__controls label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.member-row__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+}
+
+.member-row__actions button,
+.member-form button,
+.task-row__manage button,
+.task-row__review-actions button {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  padding: 6px 12px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+button.danger {
+  border-color: rgba(255, 110, 110, 0.6);
+  color: #ffb2b2;
+}
+
+.member-form {
+  border-radius: 18px;
+  padding: 12px;
+  border: 1px solid rgba(0, 128, 139, 0.35);
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.member-form h4 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.member-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.member-form__grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.member-form__grid input,
+.member-form__grid select {
+  border-radius: 10px;
+  border: 1px solid rgba(0, 128, 139, 0.4);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  padding: 6px 8px;
+}
+
+.member-form__toggle {
+  flex-direction: row;
+  align-items: center;
+}
+
+.task-row {
+  border-radius: 18px;
+  border: 1px solid rgba(0, 128, 139, 0.35);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.task-row__main input,
+.task-row__main textarea,
+.task-row__main select {
+  border-radius: 10px;
+  border: 1px solid rgba(0, 128, 139, 0.4);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.task-row__main textarea {
+  resize: vertical;
+}
+
+.task-row__meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.task-row__meta label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.task-row__note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.task-row__review textarea {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.task-row__review-actions,
+.task-row__manage {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 1100px) {
+  .project-management__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .member-row {
+    grid-template-columns: 1fr;
+  }
+
+  .member-row__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .member-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .task-row__meta {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .project-management__header {
+    grid-template-columns: auto 1fr;
+  }
+
+  .project-management__role {
+    grid-column: 1 / -1;
+  }
+}

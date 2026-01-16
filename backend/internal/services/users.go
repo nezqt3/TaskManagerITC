@@ -101,3 +101,76 @@ func GetUserByTelegramID(cfg *model.Config, telegramID string) (*model.UserProfi
 
 	return u, nil
 }
+
+func GetUserByUsername(cfg *model.Config, username string) (*model.UserProfile, error) {
+	absPath, err := filepath.Abs(cfg.NAME_OF_DATABASE)
+	if err != nil {
+		return nil, err
+	}
+
+	db, err := sql.Open(cfg.DATABASE, absPath)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	normalized := strings.TrimPrefix(strings.ToLower(strings.TrimSpace(username)), "@")
+	if normalized == "" {
+		return nil, ErrUserNotFound
+	}
+	normalizedWithAt := "@" + normalized
+
+	u := &model.UserProfile{}
+	err = db.QueryRow(`
+		SELECT TelegramID, FirstName, LastName, Username, PhotoURL, FullName, DateOfBirthday, NumberOfPhone, Role, MayToOpen
+		FROM users
+		WHERE lower(trim(Username)) = ? OR lower(trim(Username)) = ?
+	`, normalized, normalizedWithAt).Scan(
+		&u.TelegramID,
+		&u.FirstName,
+		&u.LastName,
+		&u.Username,
+		&u.PhotoURL,
+		&u.FullName,
+		&u.DateOfBirthday,
+		&u.NumberOfPhone,
+		&u.Role,
+		&u.MayToOpen,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+
+	return u, nil
+}
+
+func UpdateUser(cfg *model.Config, telegramID string, updates *model.UserProfile) error {
+	absPath, err := filepath.Abs(cfg.NAME_OF_DATABASE)
+	if err != nil {
+		return err
+	}
+
+	db, err := sql.Open(cfg.DATABASE, absPath)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+		UPDATE users
+		SET FullName = ?, Username = ?, DateOfBirthday = ?, NumberOfPhone = ?, Role = ?, MayToOpen = ?
+		WHERE TelegramID = ?
+	`,
+		updates.FullName,
+		updates.Username,
+		updates.DateOfBirthday,
+		updates.NumberOfPhone,
+		updates.Role,
+		updates.MayToOpen,
+		telegramID,
+	)
+	return err
+}
