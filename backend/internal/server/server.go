@@ -136,7 +136,7 @@ func New(cfg *model.Config) *App {
 				return
 			}
 
-			tasks := handler.GetTasksByProjectID(idInt)
+			tasks, _ := service.GetTasksByProjectID(idInt)
 
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(tasks)
@@ -160,7 +160,7 @@ func New(cfg *model.Config) *App {
 				IdUser:      input.IdUser,
 			}
 
-			if err := handler.CreateTask(&task); err != nil {
+			if err := service.CreateTask(&task); err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
