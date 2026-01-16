@@ -18,3 +18,13 @@ services:
     volumes:
       - ./backend/projects_db.db:/app/projects_db.db
     restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    restart: always
+    depends_on:
+      - backend

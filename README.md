@@ -24,17 +24,26 @@ TaskManagerITC/
 │   ├── cmd/
 │   │   └── api/                 # Точка входа в приложение
 │   ├── internal/                # Внутренняя логика приложения
-│   │   ├── handlers             # HTTP‑обработчики
-│   │   ├── services             # Бизнес‑логика
-│   │   ├── notificatios         # Настройка уведомлений
-│   │   ├── database             # База данных
-│   │   ├── repository           # Работа с БД
-│   │   └── models               # Модели данных
+│   │   ├── config/              # Конфигурация приложения
+│   │   ├── database/            # Инициализация и работа с базой данных
+│   │   ├── handler/             # HTTP-обработчики
+│   │   ├── logger/              # Логирование
+│   │   ├── middleware/          # HTTP Middleware (JWT, Role, CORS и т.д.)
+│   │   ├── model/               # Модели данных (структуры)
+│   │   ├── notifications/       # Работа с уведомлениями (Telegram, Email и т.д.)
+│   │   ├── permissions/         # Контроль доступа и роли
+│   │   ├── repository/          # Работа с БД на уровне репозитория
+│   │   ├── server/              # Настройка и запуск HTTP сервера
+│   │   ├── services/            # Бизнес-логика приложения
+│   │   └── telegram/            # Telegram API интеграции
 │   ├── pkg/
 │   │   └── jwt/                 # JWT‑утилиты (токены, middleware)
+│   ├── logs/                    # Логи
 │   ├── migrations/              # SQL‑миграции
+│   ├── scripts/                 # Python-скрипты
 │   ├── .env                     # Переменные окружения
 │   ├── Dockerfile               # Docker‑образ backend
+│   ├── Dockerfile.migrate       # Docker‑образ migration
 │   ├── go.mod                   # Go‑зависимости
 │   └── go.sum                   # Контрольные суммы
 │
@@ -157,9 +166,25 @@ npm start
 ## 📡 API (пример)
 
 ```http
-GET   /health
-POST   /auth/telegram
-GET    /get_users
+GET     /health
+POST    /auth/telegram
+GET     /get_users
+PUT     /users/{telegramID}
+GET     /projects
+GET     /projects/{id}
+GET     /projects/{id}/members
+POST    /projects/{id}/members
+PUT     /projects/{id}/members/{username}
+DELETE  /projects/{id}/members/{username}
+GET     /tasks?id_project={id}
+POST    /tasks
+PUT     /tasks/{id}
+DELETE  /tasks/{id}
+POST    /tasks/{id}/complete
+POST    /tasks/{id}/review
+GET     /dashboard?username={username}
+GET     /events
+GET     /search_users?term={term}
 ```
 
 Все защищённые эндпоинты требуют JWT‑токен.
