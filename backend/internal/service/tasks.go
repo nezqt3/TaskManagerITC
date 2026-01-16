@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"time"
 
-	"backend/internal/model/database"
+	"backend/internal/model"
 	"backend/internal/config"
 	"backend/internal/notifications"
 )
 
-func CreateTask(task *database.Task) error {
+func CreateTask(task *model.Task) error {
 	cfg := config.LoadConfig()
 	absPath, err := filepath.Abs(cfg.NAME_OF_DATABASE)
 	if err != nil {
@@ -87,7 +87,7 @@ func CreateTask(task *database.Task) error {
 	return nil
 }
 
-func GetTasksByProjectID(projectID int) ([]database.Task, error) {
+func GetTasksByProjectID(projectID int) ([]model.Task, error) {
 	cfg := config.LoadConfig()
 	absPath, err := filepath.Abs(cfg.NAME_OF_DATABASE)
 	if err != nil {
@@ -101,9 +101,9 @@ func GetTasksByProjectID(projectID int) ([]database.Task, error) {
     }
     defer rows.Close()
 
-    var tasks []database.Task
+    var tasks []model.Task
     for rows.Next() {
-        var t database.Task
+        var t model.Task
         err := rows.Scan(
             &t.ID,
             &t.Description,

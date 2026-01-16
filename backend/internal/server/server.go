@@ -8,7 +8,6 @@ import (
 
 	"backend/internal/handler"
 	"backend/internal/model"
-	"backend/internal/model/database"
 	"backend/internal/service"
 	"backend/internal/middleware"
 )
@@ -142,14 +141,14 @@ func New(cfg *model.Config) *App {
 			json.NewEncoder(w).Encode(tasks)
 
 		case http.MethodPost:
-			var input database.Task
+			var input model.Task
 
 			if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 				http.Error(w, "invalid json", http.StatusBadRequest)
 				return
 			}
 
-			task := database.Task{
+			task := model.Task{
 				Description: input.Description,
 				Deadline:    input.Deadline,
 				Status:      input.Status,
