@@ -177,7 +177,8 @@ func New(cfg *model.Config) *App {
 			switch sub {
 			case "members":
 				role, _ := r.Context().Value("role").(string)
-				if !permissions.CanManageMembers(role) {
+				userID, _ := r.Context().Value("user_id").(int64)
+				if !permissions.IsAdmin(resolveEffectiveRole(cfg, userID, role)) {
 					http.Error(w, "access denied", http.StatusForbidden)
 					return
 				}
@@ -622,8 +623,21 @@ func resolveReviewerName(cfg *model.Config, userID int64) string {
 	return user.Username
 }
 
+func resolveEffectiveRole(cfg *model.Config, userID int64, fallback string) string {
+	if userID == 0 {
+		return fallback
+	}
+	user, err := services.GetUserByTelegramID(cfg, strconv.FormatInt(userID, 10))
+	if err != nil || user == nil || user.Role == "" {
+		return fallback
+	}
+	return user.Role
+}
+
 func canManageProjectTasks(cfg *model.Config, projectID int, userID int64, role string) bool {
-	if permissions.IsAdmin(role) {
+	effectiveRole := resolveEffectiveRole(cfg, userID, role)
+
+	if permissions.IsAdmin(effectiveRole) {
 		return true
 	}
 	if userID == 0 || projectID == 0 {
@@ -635,7 +649,7 @@ func canManageProjectTasks(cfg *model.Config, projectID int, userID int64, role 
 		return false
 	}
 
-	if permissions.IsModerator(role) {
+	if permissions.IsModerator(effectiveRole) {
 		return true
 	}
 
