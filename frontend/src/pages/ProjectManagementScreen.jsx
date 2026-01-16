@@ -69,6 +69,7 @@ export default function ProjectManagementScreen() {
     moderator: false,
     admin: false,
   });
+  const [showMemberForm, setShowMemberForm] = useState(false);
   const [memberEdits, setMemberEdits] = useState({});
   const [taskEdits, setTaskEdits] = useState({});
   const [reviewNotes, setReviewNotes] = useState({});
@@ -510,7 +511,22 @@ export default function ProjectManagementScreen() {
         <section className="project-management__panel">
           <div className="project-management__panel-header">
             <h3>Участники</h3>
-            <span>{project?.members?.length || 0}</span>
+            <div className="project-management__panel-actions">
+              <span className="project-management__panel-count">
+                {project?.members?.length || 0}
+              </span>
+              {canManageProjectMembers && (
+                <button
+                  className="project-management__panel-toggle"
+                  type="button"
+                  onClick={() => setShowMemberForm((prev) => !prev)}
+                  aria-expanded={showMemberForm}
+                  aria-label="Добавить участника"
+                >
+                  {showMemberForm ? "—" : "+"}
+                </button>
+              )}
+            </div>
           </div>
           {!canManageProjectMembers && (
             <p className="project-management__hint">
@@ -596,60 +612,65 @@ export default function ProjectManagementScreen() {
             })}
           </div>
 
-          <form className="member-form" onSubmit={handleAddMember}>
-            <h4>Добавить участника</h4>
-            <div className="member-form__grid">
-              <label>
-                Username
-                <input
-                  list="users-list"
-                  name="username"
-                  value={memberForm.username}
-                  onChange={handleMemberFormChange}
-                  placeholder="@username"
-                  disabled={!canManageProjectMembers}
-                />
-              </label>
-              <label>
-                Базовая роль
-                <select
-                  name="baseRole"
-                  value={memberForm.baseRole}
-                  onChange={handleMemberFormChange}
-                  disabled={!canManageProjectMembers}
-                >
-                  {BASE_ROLES.map((roleOption) => (
-                    <option key={roleOption} value={roleOption}>
-                      {roleOption}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="member-form__toggle">
-                <input
-                  type="checkbox"
-                  name="moderator"
-                  checked={memberForm.moderator}
-                  onChange={handleMemberFormChange}
-                  disabled={!canManageProjectMembers}
-                />
-                Модератор
-              </label>
-              <label className="member-form__toggle">
-                <input
-                  type="checkbox"
-                  name="admin"
-                  checked={memberForm.admin}
-                  onChange={handleMemberFormChange}
-                  disabled={!canManageProjectMembers || memberForm.baseRole.toLowerCase() === "разработчик"}
-                />
-                Админ
-              </label>
-            </div>
-            <button type="submit" disabled={!canManageProjectMembers}>
-              Добавить
-            </button>
-          </form>
+          {showMemberForm && (
+            <form className="member-form" onSubmit={handleAddMember}>
+              <h4>Добавить участника</h4>
+              <div className="member-form__grid">
+                <label>
+                  Username
+                  <input
+                    list="users-list"
+                    name="username"
+                    value={memberForm.username}
+                    onChange={handleMemberFormChange}
+                    placeholder="@username"
+                    disabled={!canManageProjectMembers}
+                  />
+                </label>
+                <label>
+                  Базовая роль
+                  <select
+                    name="baseRole"
+                    value={memberForm.baseRole}
+                    onChange={handleMemberFormChange}
+                    disabled={!canManageProjectMembers}
+                  >
+                    {BASE_ROLES.map((roleOption) => (
+                      <option key={roleOption} value={roleOption}>
+                        {roleOption}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="member-form__toggle">
+                  <input
+                    type="checkbox"
+                    name="moderator"
+                    checked={memberForm.moderator}
+                    onChange={handleMemberFormChange}
+                    disabled={!canManageProjectMembers}
+                  />
+                  Модератор
+                </label>
+                <label className="member-form__toggle">
+                  <input
+                    type="checkbox"
+                    name="admin"
+                    checked={memberForm.admin}
+                    onChange={handleMemberFormChange}
+                    disabled={
+                      !canManageProjectMembers ||
+                      memberForm.baseRole.toLowerCase() === "разработчик"
+                    }
+                  />
+                  Админ
+                </label>
+              </div>
+              <button type="submit" disabled={!canManageProjectMembers}>
+                Добавить
+              </button>
+            </form>
+          )}
           <datalist id="users-list">
             {userOptions.map((user) => (
               <option key={user.username} value={user.username}>
@@ -662,7 +683,11 @@ export default function ProjectManagementScreen() {
         <section className="project-management__panel">
           <div className="project-management__panel-header">
             <h3>Задачи</h3>
-            <span>{tasks.length}</span>
+            <div className="project-management__panel-actions">
+              <span className="project-management__panel-count">
+                {tasks.length}
+              </span>
+            </div>
           </div>
           {!canManageProjectTasks && (
             <p className="project-management__hint">
