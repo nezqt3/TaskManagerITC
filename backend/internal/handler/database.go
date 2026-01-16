@@ -70,7 +70,7 @@ func createTables() {
 		description TEXT, 
 		deadline DATE, 
 		status TEXT, 
-        user_id INTEGER,
+		id_user INTEGER,
 		user TEXT, 
 		title TEXT,
 		author TEXT,

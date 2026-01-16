@@ -95,7 +95,11 @@ func GetTasksByProjectID(projectID int) ([]model.Task, error) {
 	}
 
 	DB, err := sql.Open(cfg.DATABASE, absPath)
-    rows, err := DB.Query("SELECT * FROM tasks WHERE id_project = ?", projectID)
+    rows, err := DB.Query(`
+        SELECT id, description, deadline, status, user, title, author, id_project, COALESCE(id_user, 0)
+        FROM tasks
+        WHERE id_project = ?
+    `, projectID)
     if err != nil {
         log.Fatal(err)
     }
@@ -113,6 +117,7 @@ func GetTasksByProjectID(projectID int) ([]model.Task, error) {
             &t.Title,
             &t.Author,
             &t.IdProject,
+            &t.IdUser,
         )
         if err != nil {
             log.Fatal(err)
