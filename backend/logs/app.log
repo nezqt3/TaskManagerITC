@@ -142,3 +142,16 @@ username=rudactor
 [INFO] 2026/01/17 17:44:22 migrate.go:42: no new migrations to apply
 [INFO] 2026/01/17 17:44:22 migrate.go:47: migration process finished in 714.375µs
 [INFO] 2026/01/17 17:44:22 main.go:26: server started on port: 8080
+[INFO] 2026/01/17 18:30:44 auth.go:17: TelegramAuthHandler called
+[INFO] 2026/01/17 18:30:44 auth.go:25: Request decoded: {ID:578814803 FirstName:rudactor LastName: Username:rudactor PhotoURL:https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg AuthDate:1768663844 Hash:3875986b6a3a716600a2581ef22b511e1fe288a06ece25d59ba25241510a1aef}
+[INFO] 2026/01/17 18:30:44 auth.go:43: Data map for Telegram auth: map[auth_date:1768663844 first_name:rudactor hash:3875986b6a3a716600a2581ef22b511e1fe288a06ece25d59ba25241510a1aef id:578814803 photo_url:https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg username:rudactor]
+[INFO] 2026/01/17 18:30:44 validator.go:15: Checking Telegram auth...
+[INFO] 2026/01/17 18:30:44 validator.go:26: Data string for hash: auth_date=1768663844
+first_name=rudactor
+id=578814803
+photo_url=https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg
+username=rudactor
+[INFO] 2026/01/17 18:30:44 validator.go:39: Telegram auth hash valid
+[INFO] 2026/01/17 18:30:44 auth.go:51: Telegram auth successful
+[INFO] 2026/01/17 18:30:44 auth.go:77: TelegramAuth: successful login for TelegramID '578814803', username 'rudactor'
+[INFO] 2026/01/17 18:30:44 auth.go:64: Response sent successfully: &{JWT:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1Nzg4MTQ4MDMsInJvbGUiOiLQoNGD0LrQvtCy0L7QtNC40YLQtdC70Ywg0L_RgNC-0LXQutGC0L7Qsiwg0JzQvtC00LXRgNCw0YLQvtGALCDQkNC00LzQuNC9IiwiZXhwIjoxNzY4NzUwMjQ0fQ.63iQvOFJVaHtlG8OxgkeVMgjL-X_bQ89hAJRv_WBJq0 Profile:{TelegramID:578814803 FirstName:rudactor LastName: Username:rudactor PhotoURL:https://t.me/i/userpic/320/QnAa6BYYfuHxr6lmbfZOfzgtT6t-9KfxOZceChr9qVU.jpg FullName:Верещагин Илья Антонович DateOfBirthday:14.04.2006 NumberOfPhone:89090108406 Role:Руководитель проектов, Модератор, Админ MayToOpen:true}}

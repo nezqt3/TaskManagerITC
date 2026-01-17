@@ -23,6 +23,18 @@ export function getAuthHeaders() {
   return { Authorization: `Bearer ${jwt}` };
 }
 
+export function clearAuth() {
+  localStorage.removeItem("jwt");
+  localStorage.removeItem("profile");
+}
+
+export function handleUnauthorized() {
+  clearAuth();
+  if (window.location.pathname !== "/") {
+    window.location.replace("/");
+  }
+}
+
 export function parseRoles(role = "") {
   return role
     .toLowerCase()

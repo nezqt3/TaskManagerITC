@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "../styles/MembersScreen.scss";
 import { getAuthHeaders, getProfile, isAdmin } from "../utils/auth";
+import { apiFetch } from "../utils/api";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
@@ -19,7 +20,7 @@ export default function MembersScreen() {
     setIsLoadingUsers(true);
     setUsersError("");
 
-    fetch(`${API_BASE}/get_users`, {
+    apiFetch(`${API_BASE}/get_users`, {
       headers: getAuthHeaders(),
     })
       .then((response) => {
@@ -115,7 +116,7 @@ export default function MembersScreen() {
       normalizedRole.push("Админ");
     }
     const roleValue = normalizedRole.join(", ");
-    fetch(`${API_BASE}/users/${telegramId}`, {
+    apiFetch(`${API_BASE}/users/${telegramId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -136,7 +137,7 @@ export default function MembersScreen() {
         }
       })
       .then(() =>
-        fetch(`${API_BASE}/get_users`, {
+        apiFetch(`${API_BASE}/get_users`, {
           headers: getAuthHeaders(),
         })
       )

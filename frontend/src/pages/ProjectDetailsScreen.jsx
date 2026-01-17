@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import "../styles/ProjectDetailsScreen.scss";
 import { getAuthHeaders, getProfile, isAdmin, isModerator, parseRoles } from "../utils/auth";
+import { apiFetch } from "../utils/api";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
@@ -42,7 +43,7 @@ export default function ProjectDetailsScreen() {
     setIsLoading(true);
     setProjectError("");
 
-    fetch(`${API_BASE}/projects/${id}`, {
+    apiFetch(`${API_BASE}/projects/${id}`, {
       headers: authHeaders,
     })
       .then((response) => {
@@ -132,7 +133,7 @@ export default function ProjectDetailsScreen() {
     setIsLoadingTasks(true);
     setTasksError("");
 
-    fetch(`${API_BASE}/tasks?id_project=${id}`, {
+    apiFetch(`${API_BASE}/tasks?id_project=${id}`, {
       headers: authHeaders,
     })
       .then((response) => {
@@ -167,7 +168,7 @@ export default function ProjectDetailsScreen() {
 
   useEffect(() => {
     let isActive = true;
-    fetch(`${API_BASE}/get_users`, { headers: authHeaders })
+    apiFetch(`${API_BASE}/get_users`, { headers: authHeaders })
       .then((response) => {
         if (!response.ok) {
           throw new Error("failed");
@@ -310,7 +311,7 @@ export default function ProjectDetailsScreen() {
       id_user: directoryEntry?.telegramId ? Number(directoryEntry.telegramId) : 0,
     };
 
-    fetch(`${API_BASE}/tasks`, {
+    apiFetch(`${API_BASE}/tasks`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -344,7 +345,7 @@ export default function ProjectDetailsScreen() {
 
   const handleCompletionSubmit = (taskId) => {
     const message = (completionNotes[taskId] || "").trim();
-    fetch(`${API_BASE}/tasks/${taskId}/complete`, {
+    apiFetch(`${API_BASE}/tasks/${taskId}/complete`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

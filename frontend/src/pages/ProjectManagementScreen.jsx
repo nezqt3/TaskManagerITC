@@ -8,6 +8,7 @@ import {
   isModerator,
   parseRoles,
 } from "../utils/auth";
+import { apiFetch } from "../utils/api";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 const TASK_STATUSES = [
@@ -82,9 +83,9 @@ export default function ProjectManagementScreen() {
     setError("");
 
     Promise.all([
-      fetch(`${API_BASE}/projects/${id}`, { headers: authHeaders }),
-      fetch(`${API_BASE}/tasks?id_project=${id}`, { headers: authHeaders }),
-      fetch(`${API_BASE}/get_users`, { headers: authHeaders }),
+      apiFetch(`${API_BASE}/projects/${id}`, { headers: authHeaders }),
+      apiFetch(`${API_BASE}/tasks?id_project=${id}`, { headers: authHeaders }),
+      apiFetch(`${API_BASE}/get_users`, { headers: authHeaders }),
     ])
       .then(async ([projectResponse, tasksResponse, usersResponse]) => {
         if (!projectResponse.ok || !tasksResponse.ok || !usersResponse.ok) {
@@ -286,7 +287,7 @@ export default function ProjectManagementScreen() {
       (user) => normalizeUsername(user.username || "") === normalized
     );
 
-    fetch(`${API_BASE}/projects/${id}/members`, {
+    apiFetch(`${API_BASE}/projects/${id}/members`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -306,7 +307,7 @@ export default function ProjectManagementScreen() {
         return response.text();
       })
       .then(() =>
-        fetch(`${API_BASE}/projects/${id}`, { headers: authHeaders })
+        apiFetch(`${API_BASE}/projects/${id}`, { headers: authHeaders })
       )
       .then((response) => response.json())
       .then((data) => {
@@ -332,7 +333,7 @@ export default function ProjectManagementScreen() {
     }
 
     const roleValue = buildRoleString(edit.baseRole, edit.moderator, edit.admin);
-    fetch(`${API_BASE}/projects/${id}/members/${username}`, {
+    apiFetch(`${API_BASE}/projects/${id}/members/${username}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -344,7 +345,7 @@ export default function ProjectManagementScreen() {
         if (!response.ok) {
           throw new Error("failed");
         }
-        return fetch(`${API_BASE}/projects/${id}`, { headers: authHeaders });
+        return apiFetch(`${API_BASE}/projects/${id}`, { headers: authHeaders });
       })
       .then((response) => response.json())
       .then((data) => setProject(data))
@@ -356,7 +357,7 @@ export default function ProjectManagementScreen() {
       return;
     }
     setActionError("");
-    fetch(`${API_BASE}/projects/${id}/members/${username}`, {
+    apiFetch(`${API_BASE}/projects/${id}/members/${username}`, {
       method: "DELETE",
       headers: authHeaders,
     })
@@ -367,7 +368,7 @@ export default function ProjectManagementScreen() {
         return response.text();
       })
       .then(() =>
-        fetch(`${API_BASE}/projects/${id}`, { headers: authHeaders })
+        apiFetch(`${API_BASE}/projects/${id}`, { headers: authHeaders })
       )
       .then((response) => response.json())
       .then((data) => setProject(data))
@@ -396,7 +397,7 @@ export default function ProjectManagementScreen() {
     const normalized = normalizeUsername(payload.user || "");
     const idUser = normalized ? Number(userDirectory[normalized] || 0) : 0;
 
-    fetch(`${API_BASE}/tasks/${taskId}`, {
+    apiFetch(`${API_BASE}/tasks/${taskId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -417,7 +418,7 @@ export default function ProjectManagementScreen() {
       return;
     }
     setActionError("");
-    fetch(`${API_BASE}/tasks/${taskId}`, {
+    apiFetch(`${API_BASE}/tasks/${taskId}`, {
       method: "DELETE",
       headers: authHeaders,
     })
@@ -427,7 +428,7 @@ export default function ProjectManagementScreen() {
         }
       })
       .then(() =>
-        fetch(`${API_BASE}/tasks?id_project=${id}`, { headers: authHeaders })
+        apiFetch(`${API_BASE}/tasks?id_project=${id}`, { headers: authHeaders })
       )
       .then((response) => response.json())
       .then((data) => setTasks(Array.isArray(data) ? data : []))
@@ -441,7 +442,7 @@ export default function ProjectManagementScreen() {
     setActionError("");
     const message = reviewNotes[taskId] || "";
 
-    fetch(`${API_BASE}/tasks/${taskId}/review`, {
+    apiFetch(`${API_BASE}/tasks/${taskId}/review`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -453,7 +454,7 @@ export default function ProjectManagementScreen() {
         if (!response.ok) {
           throw new Error("failed");
         }
-        return fetch(`${API_BASE}/tasks?id_project=${id}`, { headers: authHeaders });
+        return apiFetch(`${API_BASE}/tasks?id_project=${id}`, { headers: authHeaders });
       })
       .then((response) => response.json())
       .then((data) => setTasks(Array.isArray(data) ? data : []))

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/MainScreen.scss";
 import { getAuthHeaders, getProfile } from "../utils/auth";
+import { apiFetch } from "../utils/api";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
@@ -50,7 +51,7 @@ export default function MainScreen() {
     setIsLoading(true);
     setError("");
 
-    fetch(`${API_BASE}/dashboard?username=${encodeURIComponent(username)}`, {
+    apiFetch(`${API_BASE}/dashboard?username=${encodeURIComponent(username)}`, {
       headers: getAuthHeaders(),
     })
       .then((response) => {

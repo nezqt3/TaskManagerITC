@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/ProjectsScreen.scss";
 import { getAuthHeaders } from "../utils/auth";
+import { apiFetch } from "../utils/api";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 const TASKS_LINK_TEXT = "просмотреть задачу";
@@ -17,7 +18,7 @@ export default function ProjectsScreen() {
     setIsLoadingProjects(true);
     setProjectsError("");
 
-    fetch(`${API_BASE}/projects`, {
+    apiFetch(`${API_BASE}/projects`, {
       headers: getAuthHeaders(),
     })
       .then((response) => {
