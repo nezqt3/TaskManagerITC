@@ -3,26 +3,13 @@ import { Link } from "react-router-dom";
 import "../styles/MainScreen.scss";
 import { getAuthHeaders, getProfile } from "../utils/auth";
 import { apiFetch } from "../utils/api";
+import { formatDeadline, getDeadlineDate } from "../utils/date";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
-const formatDate = (value) => {
-  if (!value) {
-    return "—";
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-  return date.toLocaleDateString("ru-RU");
-};
-
 const getPriorityLabel = (deadline) => {
-  if (!deadline) {
-    return "Обычно";
-  }
-  const date = new Date(deadline);
-  if (Number.isNaN(date.getTime())) {
+  const date = getDeadlineDate(deadline);
+  if (!date) {
     return "Обычно";
   }
   const diff = date.getTime() - Date.now();
@@ -137,7 +124,7 @@ export default function MainScreen() {
                   to={taskLink}
                 >
                   <div className="dashboard-card__meta">
-                    <span>Срок выполнения: {formatDate(task.deadline)}</span>
+                    <span>Срок выполнения: {formatDeadline(task.deadline)}</span>
                     <span className={priority === "Важно" ? "badge badge--hot" : "badge"}>
                       {priority}
                     </span>

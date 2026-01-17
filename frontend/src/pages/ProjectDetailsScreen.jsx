@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import "../styles/ProjectDetailsScreen.scss";
 import { getAuthHeaders, getProfile, isAdmin, isModerator, parseRoles } from "../utils/auth";
 import { apiFetch } from "../utils/api";
+import { formatDeadline } from "../utils/date";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
@@ -518,7 +519,7 @@ export default function ProjectDetailsScreen() {
                       </div>
                       <div className="project-details__task-meta">
                         <span>{task.status || "Без статуса"}</span>
-                        {task.deadline && <span>Срок: {task.deadline}</span>}
+                        <span>Срок: {formatDeadline(task.deadline)}</span>
                         {task.user && <span>Исп.: {task.user}</span>}
                         {task.author && <span>Автор: {task.author}</span>}
                       </div>
@@ -672,7 +673,7 @@ export default function ProjectDetailsScreen() {
                         </div>
                         <div className="project-details__task-meta">
                           <span>{task.status || "Без статуса"}</span>
-                          {task.deadline && <span>Срок: {task.deadline}</span>}
+                          <span>Срок: {formatDeadline(task.deadline)}</span>
                           {task.user && <span>Исп.: {task.user}</span>}
                           {task.author && <span>Автор: {task.author}</span>}
                         </div>
