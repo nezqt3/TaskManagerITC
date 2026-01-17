@@ -10,7 +10,6 @@ export default function StartScreen() {
   const BOT_USERNAME =
     process.env.REACT_APP_TELEGRAM_BOT_USERNAME || "it_communitytest_bot";
   const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
-  const telegramLoginUrl = `https://t.me/${BOT_USERNAME}?start=login`;
 
   const handleTelegramAuth = useCallback(
     async (user) => {
