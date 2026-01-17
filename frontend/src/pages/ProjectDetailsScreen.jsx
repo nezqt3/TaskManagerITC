@@ -1,9 +1,20 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import "../styles/ProjectDetailsScreen.scss";
-import { getAuthHeaders, getProfile, isAdmin, isModerator, parseRoles } from "../utils/auth";
+import {
+  getAuthHeaders,
+  getProfile,
+  isAdmin,
+  isModerator,
+  parseRoles,
+} from "../utils/auth";
 import { apiFetch } from "../utils/api";
 import { formatDeadline } from "../utils/date";
+import {
+  formatDisplayName,
+  normalizeFullName,
+  normalizeUsername,
+} from "../utils/nameFormat";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
@@ -21,6 +32,7 @@ export default function ProjectDetailsScreen() {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [completionNotes, setCompletionNotes] = useState({});
   const [usersDirectory, setUsersDirectory] = useState({});
+  const [usersByFullName, setUsersByFullName] = useState({});
   const profile = useMemo(() => getProfile(), []);
   const [effectiveRole, setEffectiveRole] = useState(profile?.role || "");
   const [taskForm, setTaskForm] = useState({
@@ -203,16 +215,34 @@ export default function ProjectDetailsScreen() {
         }
         const users = Array.isArray(data) ? data : [];
         const directory = {};
+        const fullNameDirectory = {};
         users.forEach((user) => {
           if (!user.username) {
             return;
           }
-          directory[user.username.toLowerCase()] = {
+          const fullName =
+            user.full_name ||
+            [user.first_name, user.last_name].filter(Boolean).join(" ");
+          const normalizedUsername = normalizeUsername(user.username);
+          if (!normalizedUsername) {
+            return;
+          }
+          directory[normalizedUsername] = {
             telegramId: user.telegram_id,
-            fullName:
-              user.full_name ||
-              [user.first_name, user.last_name].filter(Boolean).join(" "),
+            fullName,
+            firstName: user.first_name || "",
+            lastName: user.last_name || "",
+            username: user.username,
           };
+          const normalizedFullName = normalizeFullName(fullName);
+          if (normalizedFullName) {
+            fullNameDirectory[normalizedFullName] = {
+              fullName,
+              firstName: user.first_name || "",
+              lastName: user.last_name || "",
+              username: user.username,
+            };
+          }
         });
         const profileId = profile?.telegram_id;
         const profileUsername = profile?.username?.replace(/^@/, "").toLowerCase();
@@ -226,12 +256,14 @@ export default function ProjectDetailsScreen() {
           setEffectiveRole(matchedUser.role);
         }
         setUsersDirectory(directory);
+        setUsersByFullName(fullNameDirectory);
       })
       .catch(() => {
         if (!isActive) {
           return;
         }
         setUsersDirectory({});
+        setUsersByFullName({});
       });
 
     return () => {
@@ -288,15 +320,43 @@ export default function ProjectDetailsScreen() {
     isAdmin(effectiveRole) ||
     (isProjectMember && (isModerator(effectiveRole) || isProjectLeader));
 
-  const taskAuthor = useMemo(() => {
-    const fullName =
-      profile?.full_name ||
-      [profile?.first_name, profile?.last_name].filter(Boolean).join(" ");
-
-    return fullName || profile?.username || "";
-  }, [profile]);
+  const taskAuthor = useMemo(
+    () =>
+      formatDisplayName({
+        fullName:
+          profile?.full_name ||
+          [profile?.first_name, profile?.last_name].filter(Boolean).join(" "),
+        firstName: profile?.first_name,
+        lastName: profile?.last_name,
+        username: profile?.username,
+      }),
+    [profile]
+  );
 
   const canSubmitCompletion = () => Boolean(profile);
+
+  const formatTaskPerson = (rawValue) => {
+    if (!rawValue) {
+      return "";
+    }
+    if (rawValue.includes("(") && rawValue.includes(")")) {
+      return rawValue;
+    }
+
+    const byUsername = usersDirectory[normalizeUsername(rawValue)];
+    const byFullName = usersByFullName[normalizeFullName(rawValue)];
+    const user = byUsername || byFullName;
+    const fullName = user?.fullName || (byFullName ? rawValue : "");
+    const username = user?.username || (byUsername ? rawValue : "");
+    const formatted = formatDisplayName({
+      fullName,
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      username,
+    });
+
+    return formatted || rawValue;
+  };
 
   const handleTaskChange = (event) => {
     const { name, value } = event.target;
@@ -319,7 +379,7 @@ export default function ProjectDetailsScreen() {
 
     const assignedUser = taskForm.user.trim();
     const directoryEntry = assignedUser
-      ? usersDirectory[assignedUser.replace(/^@/, "").toLowerCase()]
+      ? usersDirectory[normalizeUsername(assignedUser)]
       : null;
 
     const payload = {
@@ -520,8 +580,12 @@ export default function ProjectDetailsScreen() {
                       <div className="project-details__task-meta">
                         <span>{task.status || "Без статуса"}</span>
                         <span>Срок: {formatDeadline(task.deadline)}</span>
-                        {task.user && <span>Исп.: {task.user}</span>}
-                        {task.author && <span>Автор: {task.author}</span>}
+                        {task.user && (
+                          <span>Исп.: {formatTaskPerson(task.user)}</span>
+                        )}
+                        {task.author && (
+                          <span>Автор: {formatTaskPerson(task.author)}</span>
+                        )}
                       </div>
                       {task.completion_message && (
                         <div className="project-details__task-note">
@@ -674,8 +738,12 @@ export default function ProjectDetailsScreen() {
                         <div className="project-details__task-meta">
                           <span>{task.status || "Без статуса"}</span>
                           <span>Срок: {formatDeadline(task.deadline)}</span>
-                          {task.user && <span>Исп.: {task.user}</span>}
-                          {task.author && <span>Автор: {task.author}</span>}
+                          {task.user && (
+                            <span>Исп.: {formatTaskPerson(task.user)}</span>
+                          )}
+                          {task.author && (
+                            <span>Автор: {formatTaskPerson(task.author)}</span>
+                          )}
                         </div>
                         {task.completion_message && (
                           <div className="project-details__task-note">

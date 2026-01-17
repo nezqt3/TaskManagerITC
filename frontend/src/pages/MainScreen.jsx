@@ -4,6 +4,11 @@ import "../styles/MainScreen.scss";
 import { getAuthHeaders, getProfile } from "../utils/auth";
 import { apiFetch } from "../utils/api";
 import { formatDeadline, getDeadlineDate } from "../utils/date";
+import {
+  formatDisplayName,
+  normalizeFullName,
+  normalizeUsername,
+} from "../utils/nameFormat";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
@@ -24,8 +29,11 @@ export default function MainScreen() {
     projects: [],
     events: [],
   });
+  const [usersByUsername, setUsersByUsername] = useState({});
+  const [usersByFullName, setUsersByFullName] = useState({});
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const authHeaders = useMemo(() => getAuthHeaders(), []);
 
   useEffect(() => {
     const username = profile?.username?.replace(/^@/, "");
@@ -39,7 +47,7 @@ export default function MainScreen() {
     setError("");
 
     apiFetch(`${API_BASE}/dashboard?username=${encodeURIComponent(username)}`, {
-      headers: getAuthHeaders(),
+      headers: authHeaders,
     })
       .then((response) => {
         if (!response.ok) {
@@ -73,11 +81,93 @@ export default function MainScreen() {
     return () => {
       isActive = false;
     };
-  }, [profile]);
+  }, [authHeaders, profile]);
+
+  useEffect(() => {
+    let isActive = true;
+    apiFetch(`${API_BASE}/get_users`, { headers: authHeaders })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("failed");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (!isActive) {
+          return;
+        }
+        const users = Array.isArray(data) ? data : [];
+        const directory = {};
+        const fullNameDirectory = {};
+        users.forEach((user) => {
+          if (!user.username) {
+            return;
+          }
+          const fullName =
+            user.full_name ||
+            [user.first_name, user.last_name].filter(Boolean).join(" ");
+          const normalizedUsername = normalizeUsername(user.username);
+          if (!normalizedUsername) {
+            return;
+          }
+          directory[normalizedUsername] = {
+            fullName,
+            firstName: user.first_name || "",
+            lastName: user.last_name || "",
+            username: user.username,
+          };
+          const normalizedFullName = normalizeFullName(fullName);
+          if (normalizedFullName) {
+            fullNameDirectory[normalizedFullName] = {
+              fullName,
+              firstName: user.first_name || "",
+              lastName: user.last_name || "",
+              username: user.username,
+            };
+          }
+        });
+        setUsersByUsername(directory);
+        setUsersByFullName(fullNameDirectory);
+      })
+      .catch(() => {
+        if (!isActive) {
+          return;
+        }
+        setUsersByUsername({});
+        setUsersByFullName({});
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [authHeaders]);
 
   const normalizedUsername = profile?.username
     ? profile.username.replace(/^@/, "").toLowerCase()
     : "";
+
+  const formatTaskAuthor = (rawValue) => {
+    if (!rawValue) {
+      return "";
+    }
+    if (rawValue.includes("(") && rawValue.includes(")")) {
+      return rawValue;
+    }
+
+    const byUsername = usersByUsername[normalizeUsername(rawValue)];
+    const byFullName = usersByFullName[normalizeFullName(rawValue)];
+    const user = byUsername || byFullName;
+    const fullName = user?.fullName || (byFullName ? rawValue : "");
+    const username = user?.username || (byUsername ? rawValue : "");
+    const formatted = formatDisplayName({
+      fullName,
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      username,
+    });
+
+    return formatted || rawValue;
+  };
 
   const assignedTasks = useMemo(() => {
     if (!normalizedUsername) {
@@ -131,7 +221,7 @@ export default function MainScreen() {
                   </div>
                   <h4>{task.title || "Без названия"}</h4>
                   <p className="dashboard-card__sub">
-                    Создал: {task.author || "—"}
+                    Создал: {formatTaskAuthor(task.author) || "—"}
                   </p>
                   <p className="dashboard-card__sub">
                     Проект: {task.project_title || "—"}
