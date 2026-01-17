@@ -55,6 +55,7 @@ TaskManagerITC/
 │   │   ├── App.js               # Корневой компонент
 │   │   ├── index.js             # Точка входа
 │   │   └── index.css            # Глобальные стили
+│   ├── utils/                   # Подключение к backend
 │   ├── Dockerfile               # Docker‑образ frontend
 │   ├── package.json             # JS‑зависимости
 │   ├── package-lock.json

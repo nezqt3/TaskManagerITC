@@ -39,7 +39,7 @@ export default function StartScreen() {
         setAuthError("Не удалось авторизоваться через Telegram");
       }
     },
-    [API_BASE, navigate]
+    [API_BASE, navigate],
   );
 
   useEffect(() => {
@@ -92,13 +92,6 @@ export default function StartScreen() {
           <p className="hero__subtitle">it-сообщество</p>
           <div className="hero__auth">
             <div ref={widgetRef} className="hero__auth-widget" />
-            <button
-              className="btn btn--accent btn--cta"
-              type="button"
-              onClick={() => window.open(telegramLoginUrl, "_blank")}
-            >
-              Открыть бота
-            </button>
             {authError && <p className="hero__auth-error">{authError}</p>}
           </div>
         </div>
