@@ -175,6 +175,38 @@ func New(cfg *model.Config) *App {
 
 			sub := parts[1]
 			switch sub {
+			case "status":
+				if r.Method != http.MethodPut {
+					http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+					return
+				}
+
+				role, _ := r.Context().Value("role").(string)
+				userID, _ := r.Context().Value("user_id").(int64)
+				if !canManageProjectTasks(cfg, id, userID, role) {
+					http.Error(w, "access denied", http.StatusForbidden)
+					return
+				}
+
+				var payload struct {
+					Status string `json:"status"`
+				}
+				if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+					http.Error(w, "invalid json", http.StatusBadRequest)
+					return
+				}
+				status := strings.TrimSpace(payload.Status)
+				if status == "" {
+					http.Error(w, "status is required", http.StatusBadRequest)
+					return
+				}
+
+				if err := services.UpdateProjectStatus(cfg, id, status); err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				w.WriteHeader(http.StatusNoContent)
+				return
 			case "members":
 				role, _ := r.Context().Value("role").(string)
 				userID, _ := r.Context().Value("user_id").(int64)
@@ -379,10 +411,6 @@ func New(cfg *model.Config) *App {
 						http.Error(w, err.Error(), http.StatusInternalServerError)
 						return
 					}
-					if err := services.UpdateProjectStatusFromTasks(cfg, payload.IdProject); err != nil {
-						http.Error(w, err.Error(), http.StatusInternalServerError)
-						return
-					}
 					w.WriteHeader(http.StatusNoContent)
 					return
 				case http.MethodDelete:
@@ -401,12 +429,6 @@ func New(cfg *model.Config) *App {
 					if err := services.DeleteTask(cfg, id); err != nil {
 						http.Error(w, err.Error(), http.StatusInternalServerError)
 						return
-					}
-					if projectID != 0 {
-						if err := services.UpdateProjectStatusFromTasks(cfg, projectID); err != nil {
-							http.Error(w, err.Error(), http.StatusInternalServerError)
-							return
-						}
 					}
 					w.WriteHeader(http.StatusNoContent)
 					return
@@ -484,11 +506,6 @@ func New(cfg *model.Config) *App {
 				}
 
 				if err := services.ReviewTaskCompletion(cfg, id, payload.Approved, reviewer, strings.TrimSpace(payload.Message)); err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-					return
-				}
-
-				if err := services.UpdateProjectStatusFromTasks(cfg, task.IdProject); err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}

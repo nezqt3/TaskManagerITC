@@ -28,6 +28,7 @@ export default function ProjectDetailsScreen() {
     deadline: "",
     user: "",
   });
+  const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const fromProfile = searchParams.get("from") === "profile";
   const highlightedTaskId = useMemo(() => {
     const value = Number(searchParams.get("taskId"));
@@ -76,6 +77,15 @@ export default function ProjectDetailsScreen() {
     };
   }, [authHeaders, id]);
 
+  const completedTasks = useMemo(
+    () => tasks.filter((task) => task.status === "Выполнена"),
+    [tasks]
+  );
+  const activeTasks = useMemo(
+    () => tasks.filter((task) => task.status !== "Выполнена"),
+    [tasks]
+  );
+
   useLayoutEffect(() => {
     if (isLoadingTasks || !highlightedTaskId) {
       return;
@@ -92,7 +102,9 @@ export default function ProjectDetailsScreen() {
     }
 
     const scrollToTask = () => {
-      const list = container.querySelector(".project-details__task-list");
+      const list = target.closest(
+        ".project-details__task-list, .project-details__completed-list"
+      );
       const scrollTargets = [];
 
       if (list && list.scrollHeight > list.clientHeight) {
@@ -126,7 +138,16 @@ export default function ProjectDetailsScreen() {
       cancelAnimationFrame(raf);
       clearTimeout(timer);
     };
-  }, [isLoadingTasks, highlightedTaskId, tasks]);
+  }, [isLoadingTasks, highlightedTaskId, showCompletedTasks, tasks]);
+
+  useEffect(() => {
+    if (!highlightedTaskId || isLoadingTasks) {
+      return;
+    }
+    if (completedTasks.some((task) => task.id === highlightedTaskId)) {
+      setShowCompletedTasks(true);
+    }
+  }, [completedTasks, highlightedTaskId, isLoadingTasks]);
 
   useEffect(() => {
     let isActive = true;
@@ -423,7 +444,7 @@ export default function ProjectDetailsScreen() {
               <div className="project-details__tasks-header">
                 <h3>Задачи</h3>
                 <span className="project-details__tasks-count">
-                  {tasks.length}
+                  {activeTasks.length}
                 </span>
                 {canEditTasks && (
                   <button
@@ -449,7 +470,10 @@ export default function ProjectDetailsScreen() {
                     <p className="project-details__task-title">{tasksError}</p>
                   </div>
                 )}
-                {!isLoadingTasks && !tasksError && tasks.length === 0 && (
+                {!isLoadingTasks &&
+                  !tasksError &&
+                  activeTasks.length === 0 &&
+                  completedTasks.length === 0 && (
                   <div className="project-details__task">
                     <p className="project-details__task-title">Задач пока нет</p>
                     <p className="project-details__task-subtitle">
@@ -459,7 +483,20 @@ export default function ProjectDetailsScreen() {
                 )}
                 {!isLoadingTasks &&
                   !tasksError &&
-                  tasks.map((task) => (
+                  activeTasks.length === 0 &&
+                  completedTasks.length > 0 && (
+                    <div className="project-details__task">
+                      <p className="project-details__task-title">
+                        Активных задач пока нет
+                      </p>
+                      <p className="project-details__task-subtitle">
+                        Выполненные задачи доступны ниже.
+                      </p>
+                    </div>
+                  )}
+                {!isLoadingTasks &&
+                  !tasksError &&
+                  activeTasks.map((task) => (
                     <article
                       className={`project-details__task-card${
                         highlightedTaskId === task.id
@@ -592,6 +629,69 @@ export default function ProjectDetailsScreen() {
                   </div>
                 </form>
               )}
+              <div className="project-details__completed">
+                <button
+                  className="project-details__completed-toggle"
+                  type="button"
+                  onClick={() => setShowCompletedTasks((prev) => !prev)}
+                  aria-expanded={showCompletedTasks}
+                >
+                  <span>Выполненные задачи</span>
+                  <span className="project-details__completed-count">
+                    {completedTasks.length}
+                  </span>
+                </button>
+                {showCompletedTasks && (
+                  <div className="project-details__completed-list">
+                    {completedTasks.length === 0 && (
+                      <div className="project-details__task">
+                        <p className="project-details__task-title">
+                          Выполненных задач пока нет
+                        </p>
+                      </div>
+                    )}
+                    {completedTasks.map((task) => (
+                      <article
+                        className={`project-details__task-card${
+                          highlightedTaskId === task.id
+                            ? " project-details__task-card--highlight"
+                            : ""
+                        }`}
+                        key={`${task.id}-${task.title}-completed`}
+                        data-task-id={task.id}
+                      >
+                        <div className="project-details__task-main">
+                          <p className="project-details__task-title">
+                            {task.title || "Без названия"}
+                          </p>
+                          {task.description && (
+                            <p className="project-details__task-subtitle">
+                              {task.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="project-details__task-meta">
+                          <span>{task.status || "Без статуса"}</span>
+                          {task.deadline && <span>Срок: {task.deadline}</span>}
+                          {task.user && <span>Исп.: {task.user}</span>}
+                          {task.author && <span>Автор: {task.author}</span>}
+                        </div>
+                        {task.completion_message && (
+                          <div className="project-details__task-note">
+                            <strong>Отчет:</strong> {task.completion_message}
+                          </div>
+                        )}
+                        {task.review_message && (
+                          <div className="project-details__task-note">
+                            <strong>Ответ модератора:</strong>{" "}
+                            {task.review_message}
+                          </div>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
             </section>
           )}
         </div>

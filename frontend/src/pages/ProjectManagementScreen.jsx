@@ -18,6 +18,7 @@ const TASK_STATUSES = [
   "Выполнена",
   "Отклонена",
 ];
+const PROJECT_STATUSES = ["В работе", "Выполнен", "На паузе"];
 const BASE_ROLES = ["Руководитель", "Разработчик", "Участник"];
 
 function normalizeUsername(value) {
@@ -59,6 +60,8 @@ export default function ProjectManagementScreen() {
   const isMemberAdmin = isAdmin(effectiveRole);
 
   const [project, setProject] = useState(null);
+  const [projectStatus, setProjectStatus] = useState("");
+  const [isSavingStatus, setIsSavingStatus] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -101,6 +104,7 @@ export default function ProjectManagementScreen() {
           return;
         }
         setProject(projectData);
+        setProjectStatus(projectData?.status || "В работе");
         setTasks(Array.isArray(tasksData) ? tasksData : []);
         const list = Array.isArray(usersData) ? usersData : [];
         setUsers(list);
@@ -224,6 +228,14 @@ export default function ProjectManagementScreen() {
   const canReviewTasks =
     isMemberAdmin ||
     (isProjectMember && (isModerator(effectiveRole) || isProjectLeader));
+  const canManageProjectStatus = canManageProjectTasks;
+
+  const projectStatusOptions = useMemo(() => {
+    if (projectStatus && !PROJECT_STATUSES.includes(projectStatus)) {
+      return [projectStatus, ...PROJECT_STATUSES];
+    }
+    return PROJECT_STATUSES;
+  }, [projectStatus]);
 
   const userDirectory = useMemo(() => {
     const directory = {};
@@ -461,6 +473,36 @@ export default function ProjectManagementScreen() {
       .catch(() => setActionError("Не удалось подтвердить задачу"));
   };
 
+  const handleProjectStatusSave = () => {
+    if (!canManageProjectStatus) {
+      return;
+    }
+    const nextStatus = projectStatus.trim();
+    if (!nextStatus) {
+      setActionError("Укажите статус проекта");
+      return;
+    }
+    setActionError("");
+    setIsSavingStatus(true);
+
+    apiFetch(`${API_BASE}/projects/${id}/status`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeaders,
+      },
+      body: JSON.stringify({ status: nextStatus }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("failed");
+        }
+        setProject((prev) => (prev ? { ...prev, status: nextStatus } : prev));
+      })
+      .catch(() => setActionError("Не удалось обновить статус проекта"))
+      .finally(() => setIsSavingStatus(false));
+  };
+
   if (isLoading) {
     return (
       <section className="project-management">
@@ -507,6 +549,38 @@ export default function ProjectManagementScreen() {
       {actionError && (
         <div className="project-management__error">{actionError}</div>
       )}
+
+      <section className="project-management__status">
+        <div>
+          <h3>Статус проекта</h3>
+          <p>Меняется вручную модератором или администратором.</p>
+        </div>
+        <div className="project-management__status-controls">
+          <select
+            value={projectStatus}
+            onChange={(event) => setProjectStatus(event.target.value)}
+            disabled={!canManageProjectStatus}
+          >
+            {projectStatusOptions.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={handleProjectStatusSave}
+            disabled={!canManageProjectStatus || isSavingStatus}
+          >
+            {isSavingStatus ? "Сохранение..." : "Сохранить"}
+          </button>
+        </div>
+        {!canManageProjectStatus && (
+          <p className="project-management__hint">
+            Менять статус проекта могут модераторы и администраторы.
+          </p>
+        )}
+      </section>
 
       <div className="project-management__layout">
         <section className="project-management__panel">
