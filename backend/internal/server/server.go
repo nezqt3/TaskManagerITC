@@ -528,11 +528,16 @@ func New(cfg *model.Config) *App {
 				projectMap[project.ID] = project.Title
 			}
 
+			normalizedUsername := normalizeUsername(username)
 			tasks := make([]model.Task, 0)
 			for _, project := range projects {
 				projectTasks, _ := services.GetTasksByProjectID(project.ID)
 				for _, task := range projectTasks {
 					if strings.ToLower(task.Status) == strings.ToLower("Выполнена") {
+						continue
+					}
+					if normalizedUsername != "" &&
+						normalizeUsername(task.User) != normalizedUsername {
 						continue
 					}
 					task.ProjectTitle = projectMap[task.IdProject]

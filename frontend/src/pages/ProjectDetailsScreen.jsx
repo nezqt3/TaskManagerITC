@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import "../styles/ProjectDetailsScreen.scss";
 import { getAuthHeaders, getProfile, isAdmin, isModerator, parseRoles } from "../utils/auth";
@@ -28,7 +28,12 @@ export default function ProjectDetailsScreen() {
     user: "",
   });
   const fromProfile = searchParams.get("from") === "profile";
+  const highlightedTaskId = useMemo(() => {
+    const value = Number(searchParams.get("taskId"));
+    return Number.isNaN(value) ? null : value;
+  }, [searchParams]);
   const backPath = fromProfile ? "/profile" : "/projects";
+  const taskListRef = useRef(null);
 
   const authHeaders = useMemo(() => getAuthHeaders(), []);
 
@@ -69,6 +74,58 @@ export default function ProjectDetailsScreen() {
       isActive = false;
     };
   }, [authHeaders, id]);
+
+  useLayoutEffect(() => {
+    if (isLoadingTasks || !highlightedTaskId) {
+      return;
+    }
+    const container = taskListRef.current;
+    if (!container) {
+      return;
+    }
+    const target = container.querySelector(
+      `[data-task-id="${highlightedTaskId}"]`
+    );
+    if (!target) {
+      return;
+    }
+
+    const scrollToTask = () => {
+      const list = container.querySelector(".project-details__task-list");
+      const scrollTargets = [];
+
+      if (list && list.scrollHeight > list.clientHeight) {
+        scrollTargets.push(list);
+      }
+      if (container.scrollHeight > container.clientHeight) {
+        scrollTargets.push(container);
+      }
+
+      if (scrollTargets.length === 0) {
+        target.scrollIntoView({ block: "center", behavior: "smooth" });
+        return true;
+      }
+
+      scrollTargets.forEach((scrollTarget) => {
+        const parentRect = scrollTarget.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        const offset = targetRect.top - parentRect.top - 16;
+        scrollTarget.scrollTo({
+          top: scrollTarget.scrollTop + offset,
+          behavior: "smooth",
+        });
+      });
+      return true;
+    };
+
+    const raf = requestAnimationFrame(scrollToTask);
+    const timer = setTimeout(scrollToTask, 150);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+    };
+  }, [isLoadingTasks, highlightedTaskId, tasks]);
 
   useEffect(() => {
     let isActive = true;
@@ -361,7 +418,7 @@ export default function ProjectDetailsScreen() {
           )}
 
           {!isLoading && !projectError && project && (
-            <section className="project-details__tasks">
+            <section className="project-details__tasks" ref={taskListRef}>
               <div className="project-details__tasks-header">
                 <h3>Задачи</h3>
                 <span className="project-details__tasks-count">
@@ -403,8 +460,13 @@ export default function ProjectDetailsScreen() {
                   !tasksError &&
                   tasks.map((task) => (
                     <article
-                      className="project-details__task-card"
+                      className={`project-details__task-card${
+                        highlightedTaskId === task.id
+                          ? " project-details__task-card--highlight"
+                          : ""
+                      }`}
                       key={`${task.id}-${task.title}`}
+                      data-task-id={task.id}
                     >
                       <div className="project-details__task-main">
                         <p className="project-details__task-title">

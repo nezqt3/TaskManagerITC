@@ -6,6 +6,8 @@
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 0.7fr);
   gap: 24px;
   padding: 12px;
+  min-height: 0;
+  height: 100%;
 }
 
 .dashboard-panel {
@@ -52,7 +54,10 @@
   flex-direction: column;
   gap: 12px;
   overflow-y: auto;
+  padding-top: 6px;
   padding-right: 4px;
+  flex: 1;
+  min-height: 0;
 }
 
 .dashboard-card {
@@ -64,6 +69,23 @@
   flex-direction: column;
   gap: 8px;
   font-size: 12px;
+}
+
+.dashboard-card--link {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card--link:hover {
+  border-color: rgba(118, 255, 139, 0.6);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.dashboard-card--link:focus-visible {
+  outline: 2px solid rgba(118, 255, 139, 0.6);
+  outline-offset: 3px;
 }
 
 .dashboard-card h4 {

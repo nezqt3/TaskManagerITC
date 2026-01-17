@@ -170,6 +170,26 @@
   gap: 8px;
 }
 
+.project-details__task-card--highlight {
+  border-color: rgba(118, 255, 139, 0.8);
+  box-shadow: 0 0 0 1px rgba(118, 255, 139, 0.35),
+    0 12px 24px rgba(0, 0, 0, 0.35);
+  background: rgba(19, 36, 36, 0.7);
+  animation: taskPulse 1.6s ease both;
+}
+
+@keyframes taskPulse {
+  0% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-3px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 .project-details__task-main {
   display: flex;
   flex-direction: column;

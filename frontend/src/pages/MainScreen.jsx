@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import "../styles/MainScreen.scss";
 import { getAuthHeaders, getProfile } from "../utils/auth";
 
@@ -90,7 +91,16 @@ export default function MainScreen() {
     ? profile.username.replace(/^@/, "").toLowerCase()
     : "";
 
-  const taskCards = useMemo(() => dashboard.tasks.slice(0, 6), [dashboard]);
+  const assignedTasks = useMemo(() => {
+    if (!normalizedUsername) {
+      return [];
+    }
+    return dashboard.tasks.filter(
+      (task) =>
+        (task.user || "").replace(/^@/, "").toLowerCase() === normalizedUsername
+    );
+  }, [dashboard, normalizedUsername]);
+  const taskCards = useMemo(() => assignedTasks.slice(0, 6), [assignedTasks]);
   const activeProjects = useMemo(
     () =>
       dashboard.projects.filter(
@@ -106,7 +116,7 @@ export default function MainScreen() {
       <section className="dashboard-panel">
         <header className="dashboard-panel__header">
           <h3>Текущие задачи:</h3>
-          <span>{dashboard.tasks.length}</span>
+          <span>{assignedTasks.length}</span>
         </header>
         <div className="dashboard-panel__list">
           {isLoading && <div className="dashboard-card">Загрузка...</div>}
@@ -118,8 +128,13 @@ export default function MainScreen() {
             !error &&
             taskCards.map((task) => {
               const priority = getPriorityLabel(task.deadline);
+              const taskLink = `/projects/${task.id_project}?from=profile&taskId=${task.id}`;
               return (
-                <article className="dashboard-card" key={task.id}>
+                <Link
+                  className="dashboard-card dashboard-card--link"
+                  key={task.id}
+                  to={taskLink}
+                >
                   <div className="dashboard-card__meta">
                     <span>Срок выполнения: {formatDate(task.deadline)}</span>
                     <span className={priority === "Важно" ? "badge badge--hot" : "badge"}>
@@ -133,7 +148,7 @@ export default function MainScreen() {
                   <p className="dashboard-card__sub">
                     Проект: {task.project_title || "—"}
                   </p>
-                </article>
+                </Link>
               );
             })}
         </div>
