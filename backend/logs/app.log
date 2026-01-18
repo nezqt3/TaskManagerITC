@@ -241,3 +241,27 @@ username=rudactor
 [INFO] 2026/01/17 19:25:48 migrate.go:42: no new migrations to apply
 [INFO] 2026/01/17 19:25:48 migrate.go:47: migration process finished in 751.916µs
 [INFO] 2026/01/17 19:25:48 main.go:26: server started on port: 8080
+[INFO] 2026/01/18 21:39:12 main.go:20: application starting
+[INFO] 2026/01/18 21:39:12 database.go:16: Initializing database...
+[INFO] 2026/01/18 21:39:12 database.go:23: Database path resolved: /Users/denisalekseenko/Documents/Сайты/CRM_ITS/backend/internal/database/projects_db.db
+[INFO] 2026/01/18 21:39:12 database.go:30: Database opened successfully
+[INFO] 2026/01/18 21:39:12 database.go:36: Creating tables if not exists...
+[INFO] 2026/01/18 21:39:12 database.go:55: 'users' table ensured
+[INFO] 2026/01/18 21:39:12 database.go:70: 'projects' table ensured
+[INFO] 2026/01/18 21:39:12 database.go:93: 'tasks' table ensured
+[INFO] 2026/01/18 21:39:12 database.go:125: Column 'completion_message' already exists in table 'tasks'
+[INFO] 2026/01/18 21:39:12 database.go:125: Column 'review_message' already exists in table 'tasks'
+[INFO] 2026/01/18 21:39:12 database.go:125: Column 'reviewed_by' already exists in table 'tasks'
+[INFO] 2026/01/18 21:39:12 database.go:125: Column 'reviewed_at' already exists in table 'tasks'
+[INFO] 2026/01/18 21:39:12 database.go:116: 'events' table ensured
+[INFO] 2026/01/18 21:39:12 database.go:167: Seeding events table if empty...
+[INFO] 2026/01/18 21:39:12 database.go:173: Events table contains 1 rows
+[INFO] 2026/01/18 21:39:12 database.go:176: Events table already seeded
+[INFO] 2026/01/18 21:39:12 migrate.go:17: starting database migrations
+[INFO] 2026/01/18 21:39:12 migrate.go:18: database driver: sqlite3
+[INFO] 2026/01/18 21:39:12 migrate.go:19: database file: projects_db.db
+[INFO] 2026/01/18 21:39:12 migrate.go:20: migrations source: file://migrations
+[INFO] 2026/01/18 21:39:12 migrate.go:34: current migration version: 1, dirty: false
+[INFO] 2026/01/18 21:39:12 migrate.go:42: no new migrations to apply
+[INFO] 2026/01/18 21:39:12 migrate.go:47: migration process finished in 920.875µs
+[INFO] 2026/01/18 21:39:12 main.go:26: server started on port: 8080

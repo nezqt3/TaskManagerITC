@@ -108,6 +108,37 @@ func GetUserByUsername(cfg *model.Config, normalized string, normalizedWithAt st
 	return u, nil
 }
 
+func GetUserByFullName(cfg *model.Config, normalized string) (*model.UserProfile, error) {
+	db, err := openDB(cfg)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	u := &model.UserProfile{}
+	err = db.QueryRow(`
+		SELECT TelegramID, FirstName, LastName, Username, PhotoURL, FullName, DateOfBirthday, NumberOfPhone, Role, MayToOpen
+		FROM users
+		WHERE lower(trim(FullName)) = ? OR lower(trim(FullName)) = ?
+	`, normalized).Scan(
+		&u.TelegramID,
+		&u.FirstName,
+		&u.LastName,
+		&u.Username,
+		&u.PhotoURL,
+		&u.FullName,
+		&u.DateOfBirthday,
+		&u.NumberOfPhone,
+		&u.Role,
+		&u.MayToOpen,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
 func SearchUsersByFullName(cfg *model.Config, fullName string) ([]model.UserProfile, error) {
 	db, err := openDB(cfg)
 	if err != nil {
